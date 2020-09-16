@@ -1,14 +1,30 @@
 import app from '../app.js'
 import debug from 'debug'
 import http from 'http'
+import mongoose from 'mongoose'
 
+const log = debug('http:server')
 const port = normalizePort(process.env.PORT || '3000')
 
 const server = http.createServer(app)
 
-server.listen(port)
-server.on('error', onError)
-server.on('listening', onListening)
+mongoose.connect('mongodb://admin:password@localhost:27017/tshirtFactoryDB',{
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+}).then(
+  () => {
+    debug('Database connected')
+    server.listen(port)
+    server.on('listening', onListening)
+    server.on('error', onError)
+  },
+  (err) => {
+    debug('Database error:' + err)
+  }
+
+)
 
 /**
  * Normalize a port into a number, string, or false.
@@ -72,5 +88,5 @@ function onListening () {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port
-  debug('Listening on ' + bind)
+  log('Listening on ' + bind)
 }
