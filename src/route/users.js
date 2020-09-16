@@ -6,6 +6,6 @@ const router = express.Router()
 router.post('/register', UserController.register)
 router.put('/change/:id', UserController.update)
 router.put('/change/role/:id', UserController.updateRol)
-
+router.delete('/delete/:id', UserController.remove)
 
 export default router

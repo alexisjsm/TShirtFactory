@@ -69,6 +69,23 @@ const UserController = {
     } catch (error) {
       res.status(500).json({message: 'We have a problem' + error})
     }
+  },
+  remove: async (req, res) => {
+    try {
+      
+      const {id} = req.params
+
+      await User.findByIdAndRemove({_id: id}).then(user => {
+        if (user) {
+          res.status(200).json({message: 'User was removed'})
+        } else {
+          res.status(404).json({message: 'Not found user'})
+        }
+      })
+
+    } catch (error) {
+      res.status(500).json({message: 'We have a problem'})
+    }
   }
 }
 
