@@ -1,4 +1,6 @@
 import User from '../Model/User'
+import bcrypt from  'bcrypt'
+import jsonwebtoken from 'jsonwebtoken'
 
 const options = {
   new: true,
@@ -26,7 +28,6 @@ const UserController = {
     try {
       const { id } = req.params
       const {role, ...data} = req.body // exclude role
-      
       await User.findOneAndUpdate({
         _id: id
       }, data, options).then(user => {
@@ -86,6 +87,48 @@ const UserController = {
     } catch (error) {
       res.status(500).json({message: 'We have a problem'})
     }
+  },
+  findUserById: async (req, res) => {
+    const id = req.user
+    console.log(req.user)
+    try {
+      await User.findById(id).then(user => {
+        if(user){
+          res.status(202).json(user)
+        } else {
+          res.status(404).json({message: 'Not found user'})
+        }
+      })
+
+    } catch (error) {
+      res.status(500).json({message: 'We have a problem' + error })
+    }
+
+  },
+  login: async (req, res) =>{
+
+    const { email, password } = req.body
+
+    await User.findOne({
+      email: {
+        $eq: email
+      }
+    }).then(user => {
+      if (user === null || !bcrypt.compareSync(password, user.password)){
+        res.status(404).json({message: 'User or password incorrect'})
+      } else {
+        const payload = {}
+        payload.sub = user.id
+        payload.role = user.role
+
+        const refreshToken = jsonwebtoken.sign(payload, process.env.KEYJWT, {expiresIn: '1d'})
+        res.status(202).json({"refresh_token": `Bearer ${refreshToken}`})
+      }
+    })
+  },
+  logout: async (req, res) => {
+    //TODO: logout
+
   }
 }
 

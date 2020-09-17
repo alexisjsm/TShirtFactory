@@ -5,12 +5,11 @@ services:
     container_name: MongoDB
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGO_INITDB_DATABASE: 'tshirtFactoryDB' 
-      
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DB_DATABASE}
     volumes:
-      - ./mongoUser.js:/docker-entrypoint-initdb.d/mongoUser.js:rw
+      - ./mongoUser.js:/docker-entrypoint-initdb.d/mongoUser.js:ro
       - ./mongo-volume:/data/db
     ports:
       - 27017:27017

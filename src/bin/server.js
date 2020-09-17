@@ -3,25 +3,36 @@ import debug from 'debug'
 import http from 'http'
 import mongoose from 'mongoose'
 
-const log = debug('http:server')
+debug('tshirtFactory:server')
+
 const port = normalizePort(process.env.PORT || '3000')
 
 const server = http.createServer(app)
+/* configure database */
+const username = process.env.DB_USERNAME
+const password = process.env.DB_PASSWORD
+const hostname = process.env.DB_HOSTNAME
+const database =process.env.DB_DATABASE
 
-mongoose.connect('mongodb://admin:password@localhost:27017/tshirtFactoryDB',{
+/* connection database */
+mongoose.connect(`mongodb://${username}:${password}@${hostname}:27017/${database}`,{
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
 }).then(
   () => {
-    debug('Database connected')
-    server.listen(port)
+    // eslint-disable-next-line no-console
+    console.log('Database connected')
+    server.listen(port,() => {
+      console.log(`Api initialization - http://localhost:${port}`)
+    })
     server.on('listening', onListening)
     server.on('error', onError)
-  },
+    },
   (err) => {
-    debug('Database error:' + err)
+    // eslint-disable-next-line no-console
+    console.log('We have been a error: ' + err)
   }
 
 )
@@ -35,6 +46,7 @@ function normalizePort (val) {
 
   if (isNaN(port)) {
     // named pipe
+    console.log('pipe')
     return val
   }
 
@@ -58,7 +70,7 @@ function onError (error) {
   var bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port
-
+  
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
@@ -88,5 +100,5 @@ function onListening () {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port
-  log('Listening on ' + bind)
+  debug('Listening on ' + bind)
 }
