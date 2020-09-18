@@ -1,14 +1,14 @@
 import UserController from '../Controller/UserController'
-import express from 'express'
+import { Router } from 'express'
 import passport from 'passport'
 
-const router = express.Router()
+const route = Router()
 
-router.post('/register', UserController.register)
-router.put('/change/:id', UserController.update)
-router.put('/change/role/:id', UserController.updateRol)
-router.delete('/delete/:id', UserController.remove)
+route.post('/register', UserController.register)
+route.put('/change/:id', UserController.update)
+route.put('/change/role/:id', UserController.updateRol)
+route.delete('/delete/:id', UserController.remove)
 
-router.get('/profile',passport.authenticate('jwt', {session: false}),UserController.findUserById)
+route.get('/profile', passport.authenticate('jwt', { session: false }), UserController.findUserById)
 
-export default router
+export default route

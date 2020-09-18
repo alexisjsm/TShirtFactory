@@ -12,24 +12,24 @@ const server = http.createServer(app)
 const username = process.env.DB_USERNAME
 const password = process.env.DB_PASSWORD
 const hostname = process.env.DB_HOSTNAME
-const database =process.env.DB_DATABASE
+const database = process.env.DB_DATABASE
 
 /* connection database */
-mongoose.connect(`mongodb://${username}:${password}@${hostname}:27017/${database}`,{
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
+mongoose.connect(`mongodb://${username}:${password}@${hostname}:27017/${database}`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true,
+  useFindAndModify: false
 }).then(
   () => {
     // eslint-disable-next-line no-console
     console.log('Database connected')
-    server.listen(port,() => {
+    server.listen(port, () => {
       console.log(`Api initialization - http://localhost:${port}`)
     })
     server.on('listening', onListening)
     server.on('error', onError)
-    },
+  },
   (err) => {
     // eslint-disable-next-line no-console
     console.log('We have been a error: ' + err)
@@ -70,7 +70,7 @@ function onError (error) {
   var bind = typeof port === 'string'
     ? 'Pipe ' + port
     : 'Port ' + port
-  
+
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':

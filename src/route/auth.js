@@ -1,11 +1,9 @@
-import express from 'express'
+import { Router } from 'express'
 import UserController from '../Controller/UserController'
-import router from './users'
 
-const route = express.Router()
+const route = Router()
 
 route.post('/login', UserController.login)
-router.post('/logout', UserController.logout)
-
+route.post('/logout', UserController.logout)
 
 export default route

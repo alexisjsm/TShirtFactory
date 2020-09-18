@@ -4,12 +4,12 @@
   "description": "Ecommerce t-shirt",
   "scripts": {
     "build": "babel src -d dist",
-    "dev": "nodemon --exec babel-node -r dotenv/config src/bin/server.js"
+    "dev": " nodemon --exec babel-node -r dotenv/config src/bin/server.js",
+    "lint": "eslint src/"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/cli": "^7.11.6",
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.5",
     "debug": "^4.1.1",
@@ -22,12 +22,14 @@
     "passport-jwt": "^4.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.11.6",
     "@babel/core": "^7.11.6",
+    "@babel/eslint-parser": "^7.11.5",
+    "@babel/eslint-plugin": "^7.11.5",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.5",
-    "babel-eslint": "^8.2.6",
     "dotenv": "^8.2.0",
-    "eslint": "^4.19.1",
+    "eslint": "^7.9.0",
     "nodemon": "^2.0.4"
   }
 }

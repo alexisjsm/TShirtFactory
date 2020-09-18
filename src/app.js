@@ -31,5 +31,4 @@ app.use(passport.session())
 app.use('/users', routerUser)
 app.use('/auth', routerAuth)
 
-
 export default app
