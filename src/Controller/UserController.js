@@ -30,17 +30,17 @@ const UserController = {
       const { role, ...data } = req.body // exclude role
       await User.findOneAndUpdate({
         _id: id
-      }, data, options).then(user => {
+      }, data, options).select('-role -password').then(user => {
         if (user) {
-          res.status(200).json({ message: 'We have updated users' })
+          res.status(202).json({ message: 'We have updated user', user })
         } else {
           res.status(404).json({ message: 'Not found User' })
         }
       })
         .catch(error => {
-          switch (error.codeName) {
-            case 'DuplicateKey':
-              res.status(409).json({ message: 'Email already is exists in database' })
+          switch (error.code) {
+            case 11000:
+              res.status(409).json({ message: 'Email already is duplicate in database' })
               break
           }
         })
