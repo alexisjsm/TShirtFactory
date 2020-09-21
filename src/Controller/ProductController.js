@@ -1,6 +1,7 @@
 import Product from '../Model/Product'
 import mongoose from 'mongoose'
 import Item from '../Model/Item'
+import { ErrorHandle } from '../bin/ErrorHandle'
 
 const ProductController = {
 
@@ -8,38 +9,84 @@ const ProductController = {
     try {
       const { items, ...data } = req.body
 
-      const product = new Product({ ...data, items: items.map(() => { return { _id: new mongoose.Types.ObjectId() } }) })
-      await product.save((err, product) => {
-        if (err) {
-          res.status(500).json(err)
-        } else {
-          items.map((value, index) => {
-            const item = new Item({ _id: product.items[index]._id, product: product._id, ...value })
-            item.save((err) => {
-              if (err) {
-                res.status(500).json(err)
-              } else {
-                res.status(202).json({ message: 'Product created' + product.parent_sku })
-              }
-            })
+      const product = await Product.create({ ...data, items: items.map(() => { return new mongoose.Types.ObjectId() }) })
+        .then(product => {
+          if (!product) {
+            throw new ErrorHandle(409, product)
+          }
+          return product
+        })
+      items.forEach(async (value, index) => {
+        await Item.create({ ...value, product: product.items[index] })
+          .then(item => {
+            if (!item) {
+              throw new ErrorHandle(409, item)
+            }
+            return item
           })
-        }
       })
-    } catch (error) {
-      res.status(500).json({ message: 'We have a problem ' + error })
-    }
-  },
-  findAll: (req, res) => {
-    try {
-      Product.find({}).populate('items', null, Item).lean().then(product => {
-        if (product.length) {
-          res.status(202).json(product)
-        } else {
-          res.status(404).json({ message: 'Not exists products' })
-        }
-      })
+      res.status(201).json({ message: `Product saved ${product.parent_sku}` })
     } catch (error) {
       res.status(500).json(error)
+    }
+  },
+  findAll: async (req, res, next) => {
+    try {
+      await Product.find({}).populate('items', null, Item)
+        .lean()
+        .then(product => {
+          if (product.length) {
+            res.status(202).json(product)
+          } else {
+            throw new ErrorHandle(404, 'Not found Product')
+          }
+        })
+      next()
+    } catch (err) {
+      next(err)
+    }
+  },
+
+  findProductById: async (req, res, next) => {
+    const { id } = req.params
+    try {
+      await Product.findById(id).populate('items', null, Item)
+        .lean()
+        .then(product => {
+          if (!product) throw new ErrorHandle(404, 'Not found product')
+          res.status(202).json({ message: 'Find the product', product })
+        })
+      next()
+    } catch (error) {
+      next(error)
+    }
+  },
+  findItemById: async (req, res) => {
+    const { id } = req.params
+
+    try {
+      await Product.findOne({
+        items: {
+          $in: [id]
+        }
+      })
+        .then(async product => {
+          if (product) {
+            await Item.findById(id).populate('product', '-items')
+              .lean()
+              .then(item => {
+                if (item) {
+                  res.status(202).json({ message: 'We find Item', item })
+                } else {
+                  res.status(404).json({ message: 'Not found Item' })
+                }
+              })
+          } else {
+            res.status(404).json({ message: 'Not found Item on Product' })
+          }
+        })
+    } catch (error) {
+      res.status(202).json({ message: 'We have been a problem ', error })
     }
   },
   updateParent: async (req, res) => {

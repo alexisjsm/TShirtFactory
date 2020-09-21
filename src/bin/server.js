@@ -9,34 +9,28 @@ const port = normalizePort(process.env.PORT || '3000')
 
 const server = http.createServer(app)
 /* configure database */
-const username = process.env.DB_USERNAME
-const password = process.env.DB_PASSWORD
-const hostname = process.env.DB_HOSTNAME
-const database = process.env.DB_DATABASE
+const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
 
 /* connection database */
-mongoose.connect(`mongodb://${username}:${password}@${hostname}:27017/${database}`, {
+mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true,
   useFindAndModify: false
 }).then(
   () => {
-    // eslint-disable-next-line no-console
     console.log('Database connected')
-    server.listen(port, () => {
-      console.log(`Api initialization - http://localhost:${port}`)
-    })
-    server.on('listening', onListening)
-    server.on('error', onError)
   },
   (err) => {
     // eslint-disable-next-line no-console
     console.log('We have been a error: ' + err)
-  }
+  })
 
-)
-
+server.listen(port, () => {
+  console.log('Api init - http://localhost:3000/')
+})
+server.on('listening', onListening)
+server.on('error', onError)
 /**
  * Normalize a port into a number, string, or false.
  */
@@ -101,4 +95,8 @@ function onListening () {
     ? 'pipe ' + addr
     : 'port ' + addr.port
   debug('Listening on ' + bind)
+}
+
+export {
+  server
 }

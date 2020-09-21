@@ -5,11 +5,13 @@
   "scripts": {
     "build": "babel src -d dist",
     "dev": " nodemon --exec babel-node -r dotenv/config src/bin/server.js",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "test": "jest  --detectOpenHandles --forceExit"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/jest": "^26.0.14",
     "bcrypt": "^5.0.0",
     "cookie-parser": "^1.4.5",
     "debug": "^4.1.1",
@@ -28,8 +30,12 @@
     "@babel/eslint-plugin": "^7.11.5",
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.3.0",
     "dotenv": "^8.2.0",
     "eslint": "^7.9.0",
-    "nodemon": "^2.0.4"
+    "eslint-plugin-jest": "^24.0.2",
+    "jest": "^26.4.2",
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2"
   }
 }
