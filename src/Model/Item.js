@@ -1,11 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 
 const ItemSchema = new mongoose.Schema({
-  product: {
-    type: Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true
-  },
+
   child_sku: {
     type: String,
     required: true,
@@ -21,6 +17,11 @@ const ItemSchema = new mongoose.Schema({
   },
   size: {
     type: String,
+    required: true
+  },
+  product: {
+    type: Schema.Types.ObjectId,
+    ref: 'Product',
     required: true
   }
 })

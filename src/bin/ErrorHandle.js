@@ -6,13 +6,26 @@ class ErrorHandle extends Error {
   }
 }
 
-const handleError = (err, res) => {
-  const { statusCode, message } = err
-  return res.status(statusCode).json({
-    status: 'error',
-    statusCode,
-    message
-  })
+const handleError = (err, res, next) => {
+  const { statusCode, message, code, keyValue } = err
+  if (statusCode) {
+    return res.status(statusCode).json({
+      status: 'error',
+      statusCode,
+      message
+    })
+  }
+  switch (code) {
+    case 11000:
+      return res.status(409).json({
+        status: 'error',
+        statusCode: 409,
+        message: 'duplicate key error collection',
+        keyValue
+      })
+      break
+  }
+  next()
 }
 
 export {

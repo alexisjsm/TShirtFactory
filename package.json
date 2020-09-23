@@ -4,9 +4,9 @@
   "description": "Ecommerce t-shirt",
   "scripts": {
     "build": "babel src -d dist",
-    "dev": " nodemon --exec babel-node -r dotenv/config src/bin/server.js",
+    "dev": "nodemon --exec babel-node -r dotenv/config src/bin/server.js",
     "lint": "eslint src/",
-    "test": "jest  --detectOpenHandles --forceExit"
+    "test": "jest  --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",

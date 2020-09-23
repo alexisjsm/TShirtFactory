@@ -12,25 +12,26 @@ const server = http.createServer(app)
 const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
 
 /* connection database */
-mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useCreateIndex: true,
-  useFindAndModify: false
-}).then(
-  () => {
-    console.log('Database connected')
-  },
-  (err) => {
-    // eslint-disable-next-line no-console
-    console.log('We have been a error: ' + err)
+if (process.env.NODE_ENV !== 'test') {
+  mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  }).then(
+    () => {
+      console.log('Database connected')
+    },
+    (err) => {
+      // eslint-disable-next-line no-console
+      console.log('We have been a error: ' + err)
+    })
+  server.listen(port, () => {
+    console.log('Api init - http://localhost:3000/')
   })
-
-server.listen(port, () => {
-  console.log('Api init - http://localhost:3000/')
-})
-server.on('listening', onListening)
-server.on('error', onError)
+  server.on('listening', onListening)
+  server.on('error', onError)
+}
 /**
  * Normalize a port into a number, string, or false.
  */

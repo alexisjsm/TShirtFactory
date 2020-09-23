@@ -1,13 +1,15 @@
 import Product from '../Model/Product'
 import mongoose from 'mongoose'
 import Item from '../Model/Item'
-import { ErrorHandle } from '../bin/ErrorHandle'
+import { ErrorHandle, handleError } from '../bin/ErrorHandle'
 
 const ProductController = {
 
-  register: async (req, res) => {
+  register: async (req, res, next) => {
     try {
       const { items, ...data } = req.body
+
+      if (!items) throw new ErrorHandle(409, 'Product need a item')
 
       const product = await Product.create({ ...data, items: items.map(() => { return new mongoose.Types.ObjectId() }) })
         .then(product => {
@@ -17,7 +19,8 @@ const ProductController = {
           return product
         })
       items.forEach(async (value, index) => {
-        await Item.create({ ...value, product: product.items[index] })
+        await Item.findOneAndRemove({ child_sku: value.child_sku })
+        await Item.create({ _id: product.items[index], ...value, product: product.id })
           .then(item => {
             if (!item) {
               throw new ErrorHandle(409, item)
@@ -27,7 +30,7 @@ const ProductController = {
       })
       res.status(201).json({ message: `Product saved ${product.parent_sku}` })
     } catch (error) {
-      res.status(500).json(error)
+      next(error)
     }
   },
   findAll: async (req, res, next) => {
@@ -41,9 +44,8 @@ const ProductController = {
             throw new ErrorHandle(404, 'Not found Product')
           }
         })
-      next()
-    } catch (err) {
-      next(err)
+    } catch (error) {
+      next(error)
     }
   },
 
@@ -61,78 +63,63 @@ const ProductController = {
       next(error)
     }
   },
-  findItemById: async (req, res) => {
-    const { id } = req.params
-
+  findItemById: async (req, res, next) => {
+    const { itemId } = req.params
     try {
       await Product.findOne({
         items: {
-          $in: [id]
+          $in: [itemId]
         }
-      })
-        .then(async product => {
-          if (product) {
-            await Item.findById(id).populate('product', '-items')
-              .lean()
-              .then(item => {
-                if (item) {
-                  res.status(202).json({ message: 'We find Item', item })
-                } else {
-                  res.status(404).json({ message: 'Not found Item' })
-                }
-              })
-          } else {
-            res.status(404).json({ message: 'Not found Item on Product' })
+      }).then(async product => {
+        if (!product) {
+          throw new ErrorHandle(404, 'Not found Item on product')
+        }
+        await Item.findById(itemId).then(item => {
+          if (!item) {
+            throw new ErrorHandle(404, 'Not found Item')
           }
+          res.status(201).json({ message: 'Find item', item })
         })
+      })
     } catch (error) {
-      res.status(202).json({ message: 'We have been a problem ', error })
+      next(error)
     }
   },
-  updateParent: async (req, res) => {
+  updateParent: async (req, res, next) => {
     const { id } = req.params
     const { items, ...data } = req.body
     try {
       await Product.findOneAndUpdate({ _id: id }, data, { new: true, runValidators: true }).select('-items')
         .then(product => {
           if (product) {
-            res.status(202).json({ message: 'product updated', product })
+            res.status(200).json({ message: 'product updated', product })
           } else {
             res.status(404).json({ message: 'Not found product' })
           }
         })
     } catch (error) {
-      res.status(500).json({ message: 'We have a problem ' })
+      next()
     }
   },
-  addItem: async (req, res) => {
+  addItem: async (req, res, next) => {
+    const { id } = req.params
     try {
-      const { id } = req.params
-      await Product.findById(id).then(product => {
-        if (product) {
-          Item.create({ ...req.body, product: id })
-            .then(async item => {
-              if (item) {
-                res.json(item)
-              } else {
-                await Product.updateOne({ _id: id }, {
-                  $push: {
-                    items: item.id
-                  }
-                }, { new: true, runValidators: true })
-                  .then(product => {
-                    res.status(202).json(product)
-                  })
+      await Product.findById(id).then(async product => {
+        if (!product) throw new ErrorHandle(404, 'Not found product')
+        await Item.create({ ...req.body, product: product.id })
+          .then(async item => {
+            await Product.updateOne({ _id: id }, {
+              $push: {
+                items: item.id
               }
-            }).catch(err => {
-              res.status(404).json(err)
+            }).then(product => {
+              if (!product) throw new ErrorHandle(400, 'Something is wrong')
+              res.status(201).json({ message: 'Add item on product', item })
             })
-        } else {
-          res.status(404).json({ message: 'Not found product' })
-        }
+          })
       })
     } catch (error) {
-      res.status(500).json({ message: error })
+      next(error)
     }
   },
   updateItems: async (req, res) => {
@@ -141,7 +128,7 @@ const ProductController = {
       await Item.findOneAndUpdate({ _id: itemId }, req.body, { new: true, runValidators: true })
         .then(item => {
           if (item) {
-            res.status(202).json({ message: 'Updated', item })
+            res.status(200).json({ message: 'Item updated', item })
           } else {
             res.status(404).json({ message: 'Not found item' })
           }

@@ -9,7 +9,7 @@ import routerProduct from './route/products'
 
 import passport from 'passport'
 import jwtStrategy from './bin/strategies/jwtStrategy'
-import { handleError } from './bin/ErrorHandle'
+import { handleError, ErrorHandle } from './bin/ErrorHandle'
 
 const app = express()
 
@@ -24,11 +24,6 @@ app.use(session({
   saveUninitialized: false
 }))
 
-/* Handle Error */
-app.use((err, req, res, next) => {
-  handleError(err, res)
-})
-
 /* passport configure */
 passport.use('jwt', jwtStrategy)
 app.use(passport.initialize())
@@ -38,5 +33,10 @@ app.use(passport.session())
 app.use('/products', routerProduct)
 app.use('/users', routerUser)
 app.use('/auth', routerAuth)
+
+/* Handle Error */
+app.use((err, req, res, next) => {
+  handleError(err, res, next)
+})
 
 export default app
