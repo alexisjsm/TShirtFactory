@@ -6,7 +6,7 @@ import Item from '../Model/Item'
 
 const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
 
-describe('POST productController:register', () => {
+describe('ProductController', () => {
   beforeEach(async () => {
     await mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
       useNewUrlParser: true,
@@ -18,6 +18,10 @@ describe('POST productController:register', () => {
   })
   afterEach(async () => {
     await server.close()
+  })
+  afterAll(async () => {
+    await Item.deleteMany()
+    await Product.deleteMany()
   })
 
   describe('CREATE', () => {
@@ -48,10 +52,7 @@ describe('POST productController:register', () => {
         }
       ]
     }
-    afterAll(async () => {
-      await Item.deleteMany()
-      await Product.deleteMany()
-    })
+
     it('Debería de devolver una 201 un mensaje', async () => {
       const res = await request(server)
         .post('/products/register')
@@ -90,10 +91,7 @@ describe('POST productController:register', () => {
       })
       item.save()
     })
-    afterAll(async () => {
-      await Product.deleteMany()
-      await Item.deleteMany()
-    })
+
 
     it('Debe de actualizar el titulo de un producto', async () => {
       const res = await request(server)
@@ -118,21 +116,55 @@ describe('POST productController:register', () => {
     })
   })
 
-  describe('ADD', () => {
+  describe('ADD', () => {   
+    const item =  {
+      child_sku: 'CEERS',
+      stock: 30,
+      color: 'Negro',
+      size: 'S'
+    }
     it('Debe de añadir un articulo', async () => {
-      const item = {
-        _id: '5f67940fc155976374b99878',
-        child_sku: 'CINS',
-        stock: 99,
-        color: 'Negro',
-        size: 'S',
-        product: '5f67940fc155976374b99876'
-      }
+
       const res = await request(server)
-        .put('/add/item/5f67940fc155976374b99876')
+        .put('/products/add/item/5f67940fc155976374b99876')
         .send(item)
       expect(res.statusCode).toBe(201)
-      expect(res.body.message).toBe('Item add on Product')
+      expect(res.body.message).toBe('Add item on product')
     })
+
+    it('Debe de dar un Error', async () => {
+      const res = await request(server)
+        .put('/products/add/item/5f67940fc155976374b99874')
+        .send(item)
+
+      expect(res.statusCode).toBe(404)
+      expect(res.body.message).toBe('Not found product')
+    })
+  })
+  describe('FIND', () => {
+    
+    it('Debe de devolver todos los products', async () => {
+      const res = await request(server)
+      .get('/products/')
+      expect(res.statusCode).toBe(200)
+      expect(res.body.message).toBe('Find all product')
+    })
+    
+    it('Debe de devolver un producto', async () => {
+      const res = await request(server)
+      .get('/products/product/5f67940fc155976374b99876')
+      expect(res.statusCode).toBe(200)
+      expect(res.body.message).toBe('Find product')
+      expect(res.body.product.parent_sku).toBe('CC00')
+    })
+
+    it('Debe de devolver un articulo', async () => {
+      const res = await request(server)
+      .get('/products/items/5f67940fc155976374b99877')
+      expect(res.statusCode).toBe(200)
+      expect(res.body.message).toBe('Find item')
+      expect(res.body.item.color).toBe('Verde')
+    })
+
   })
 })

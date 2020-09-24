@@ -39,7 +39,7 @@ const ProductController = {
         .lean()
         .then(product => {
           if (product.length) {
-            res.status(202).json(product)
+            res.status(200).json({message:'Find all product', product})
           } else {
             throw new ErrorHandle(404, 'Not found Product')
           }
@@ -56,7 +56,7 @@ const ProductController = {
         .lean()
         .then(product => {
           if (!product) throw new ErrorHandle(404, 'Not found product')
-          res.status(202).json({ message: 'Find the product', product })
+          res.status(200).json({ message: 'Find product', product })
         })
       next()
     } catch (error) {
@@ -78,7 +78,7 @@ const ProductController = {
           if (!item) {
             throw new ErrorHandle(404, 'Not found Item')
           }
-          res.status(201).json({ message: 'Find item', item })
+          res.status(200).json({ message: 'Find item', item })
         })
       })
     } catch (error) {
@@ -105,7 +105,9 @@ const ProductController = {
     const { id } = req.params
     try {
       await Product.findById(id).then(async product => {
-        if (!product) throw new ErrorHandle(404, 'Not found product')
+        if (!product) {
+          throw new ErrorHandle(404, 'Not found product')
+        }
         await Item.create({ ...req.body, product: product.id })
           .then(async item => {
             await Product.updateOne({ _id: id }, {
@@ -113,7 +115,9 @@ const ProductController = {
                 items: item.id
               }
             }).then(product => {
-              if (!product) throw new ErrorHandle(400, 'Something is wrong')
+              if (!product) {
+                throw new ErrorHandle(400, 'Something is wrong')
+              }
               res.status(201).json({ message: 'Add item on product', item })
             })
           })
