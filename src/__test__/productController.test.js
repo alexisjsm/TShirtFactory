@@ -3,11 +3,12 @@ import mongoose from 'mongoose'
 import { server } from '../bin/server'
 import Product from '../Model/Product'
 import Item from '../Model/Item'
+import User from '../Model/User'
 
 const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
 
 describe('ProductController', () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -15,20 +16,57 @@ describe('ProductController', () => {
       useFindAndModify: false
     })
     await server.listen(3000)
+
+    const seller = new User({
+      name: 'Maria',
+      lastname: 'Rodriguez',
+      email: 'mariarodriguez@gmail.com',
+      password: 'password',
+      role: 'seller',
+      genre: 'woman'
+    })
+    seller.save()
+    const user = new User({
+      name: 'Jorge',
+      lastname: 'Aries',
+      email: 'jorgearies@gmail.com',
+      password: 'password',
+      genre: 'man'
+    })
+    user.save()
   })
-  afterEach(async () => {
-    await server.close()
+
+  let tokenSeller, tokenUser
+
+  beforeEach(async () => {
+    const resSeller = await request(server)
+      .post('/auth/login')
+      .send({
+        email: 'mariarodriguez@gmail.com',
+        password: 'password'
+      })
+    tokenSeller = resSeller.body.refresh_token
+
+    const resUser = await request(server)
+      .post('/auth/login')
+      .send({
+        email: 'jorgearies@gmail.com',
+        password: 'password'
+      })
+    tokenUser = resUser.body.refresh_token
   })
+
   afterAll(async () => {
-    await Item.deleteMany()
     await Product.deleteMany()
+    await User.deleteMany()
+    await server.close()
   })
 
   describe('CREATE', () => {
     const product = {
       parent_sku: 'CENE00',
       title: 'CAMISA ESTAMPA DE NAVE ESPACIAL',
-      description: 'Camisa de algodon',
+      description: 'Camisa de algodón',
       price: 12.99,
       categories: ['Camisa', 'Con Estampa'],
       items: [
@@ -53,9 +91,19 @@ describe('ProductController', () => {
       ]
     }
 
-    it('Debería de devolver una 201 un mensaje', async () => {
+    it('Debe de denegar el acceso al usuario con rol `user`', async () => {
       const res = await request(server)
         .post('/products/register')
+        .set('Authorization', `${tokenUser}`)
+        .send(product)
+      expect(res.statusCode).toBe(401)
+      expect(res.body.message).toBe("You don't have access")
+    })
+
+    it('Debe de crear el product con usuario seller', async () => {
+      const res = await request(server)
+        .post('/products/register')
+        .set('Authorization', `${tokenSeller}`)
         .send(product)
       expect(res.statusCode).toBe(201)
       expect(res.body.message).toBe(`Product saved ${product.parent_sku}`)
@@ -63,6 +111,7 @@ describe('ProductController', () => {
     it('Debería de devolver un 409', async () => {
       const res = await request(server)
         .post('/products/register')
+        .set('Authorization', `${tokenSeller}`)
         .send(product)
       expect(res.statusCode).toBe(409)
       expect(res.body.message).toBe('duplicate key error collection')
@@ -92,10 +141,10 @@ describe('ProductController', () => {
       item.save()
     })
 
-
     it('Debe de actualizar el titulo de un producto', async () => {
       const res = await request(server)
         .put('/products/change/product/5f67940fc155976374b99876')
+        .set('Authorization', `${tokenSeller}`)
         .send({
           title: 'Camisa de Cuadros'
         })
@@ -103,10 +152,21 @@ describe('ProductController', () => {
       expect(res.body.message).toBe('product updated')
       expect(res.body.product.title).toBe('Camisa de Cuadros')
     })
+    it('Debe de intentar de actualizar el titulo de un producto y devolver un error de autenticación', async () => {
+      const res = await request(server)
+        .put('/products/change/product/5f67940fc155976374b99876')
+        .set('Authorization', `${tokenUser}`)
+        .send({
+          title: 'Camisa de Cuadros'
+        })
+      expect(res.statusCode).toBe(401)
+      expect(res.body.message).toBe("You don't have access")
+    })
 
     it('Debe de actualizar el color de un articulo', async () => {
       const res = await request(server)
         .put('/products/change/item/5f67940fc155976374b99877')
+        .set('Authorization', `${tokenSeller}`)
         .send({
           color: 'Verde'
         })
@@ -116,17 +176,17 @@ describe('ProductController', () => {
     })
   })
 
-  describe('ADD', () => {   
-    const item =  {
+  describe('ADD', () => {
+    const item = {
       child_sku: 'CEERS',
       stock: 30,
       color: 'Negro',
       size: 'S'
     }
     it('Debe de añadir un articulo', async () => {
-
       const res = await request(server)
         .put('/products/add/item/5f67940fc155976374b99876')
+        .set('Authorization', `${tokenSeller}`)
         .send(item)
       expect(res.statusCode).toBe(201)
       expect(res.body.message).toBe('Add item on product')
@@ -135,24 +195,25 @@ describe('ProductController', () => {
     it('Debe de dar un Error', async () => {
       const res = await request(server)
         .put('/products/add/item/5f67940fc155976374b99874')
+        .set('Authorization', `${tokenSeller}`)
         .send(item)
 
       expect(res.statusCode).toBe(404)
       expect(res.body.message).toBe('Not found product')
     })
   })
+
   describe('FIND', () => {
-    
     it('Debe de devolver todos los products', async () => {
       const res = await request(server)
-      .get('/products/')
+        .get('/products/')
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Find all product')
     })
-    
+
     it('Debe de devolver un producto', async () => {
       const res = await request(server)
-      .get('/products/product/5f67940fc155976374b99876')
+        .get('/products/product/5f67940fc155976374b99876')
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Find product')
       expect(res.body.product.parent_sku).toBe('CC00')
@@ -160,11 +221,38 @@ describe('ProductController', () => {
 
     it('Debe de devolver un articulo', async () => {
       const res = await request(server)
-      .get('/products/items/5f67940fc155976374b99877')
+        .get('/products/items/5f67940fc155976374b99877')
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Find item')
       expect(res.body.item.color).toBe('Verde')
     })
 
+    it('Debe de devolver un error al devolver un producto', async () => {
+      const res = await request(server)
+        .get('/products/product/5f67940fc155976374b99879')
+      expect(res.statusCode).toBe(404)
+      expect(res.body.message).toBe('Not found product')
+    })
+
+    it('Debe de devolver un error al devolver un articulo', async () => {
+      const res = await request(server)
+        .get('/products/items/5f67940fc155976374b99881')
+      expect(res.statusCode).toBe(404)
+      expect(res.body.message).toBe('Not found Item on product')
+    })
+  })
+
+  describe('CHECK ERROR', () => {
+    beforeAll(async () => {
+      await Item.deleteMany()
+      await Product.deleteMany()
+    })
+
+    it('Debe de devolver un error', async () => {
+      const res = await request(server)
+        .get('/products/')
+      expect(res.statusCode).toBe(404)
+      expect(res.body.message).toBe('Not found Product')
+    })
   })
 })

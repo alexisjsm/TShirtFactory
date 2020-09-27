@@ -9,7 +9,7 @@ import routerProduct from './route/products'
 
 import passport from 'passport'
 import jwtStrategy from './bin/strategies/jwtStrategy'
-import { handleError, ErrorHandle } from './bin/ErrorHandle'
+import { handleError } from './bin/ErrorHandle'
 
 const app = express()
 

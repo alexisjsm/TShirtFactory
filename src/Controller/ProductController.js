@@ -1,16 +1,16 @@
 import Product from '../Model/Product'
 import mongoose from 'mongoose'
 import Item from '../Model/Item'
-import { ErrorHandle, handleError } from '../bin/ErrorHandle'
+import { ErrorHandle } from '../bin/ErrorHandle'
 
 const ProductController = {
 
   register: async (req, res, next) => {
+    const { items, ...data } = req.body
+    const { role } = req.user
     try {
-      const { items, ...data } = req.body
-
+      if (role === 'user') throw new ErrorHandle(401, "You don't have access")
       if (!items) throw new ErrorHandle(409, 'Product need a item')
-
       const product = await Product.create({ ...data, items: items.map(() => { return new mongoose.Types.ObjectId() }) })
         .then(product => {
           if (!product) {
@@ -39,7 +39,7 @@ const ProductController = {
         .lean()
         .then(product => {
           if (product.length) {
-            res.status(200).json({message:'Find all product', product})
+            res.status(200).json({ message: 'Find all product', product })
           } else {
             throw new ErrorHandle(404, 'Not found Product')
           }
@@ -85,25 +85,11 @@ const ProductController = {
       next(error)
     }
   },
-  updateParent: async (req, res, next) => {
-    const { id } = req.params
-    const { items, ...data } = req.body
-    try {
-      await Product.findOneAndUpdate({ _id: id }, data, { new: true, runValidators: true }).select('-items')
-        .then(product => {
-          if (product) {
-            res.status(200).json({ message: 'product updated', product })
-          } else {
-            res.status(404).json({ message: 'Not found product' })
-          }
-        })
-    } catch (error) {
-      next()
-    }
-  },
   addItem: async (req, res, next) => {
     const { id } = req.params
+    const { role } = req.user
     try {
+      if (role === 'user') throw new ErrorHandle(401, "You don't have access")
       await Product.findById(id).then(async product => {
         if (!product) {
           throw new ErrorHandle(404, 'Not found product')
@@ -126,19 +112,36 @@ const ProductController = {
       next(error)
     }
   },
-  updateItems: async (req, res) => {
-    const { itemId } = req.params
+  updateProduct: async (req, res, next) => {
+    const { id } = req.params
+    const { items, ...data } = req.body
+    const { role } = req.user
     try {
-      await Item.findOneAndUpdate({ _id: itemId }, req.body, { new: true, runValidators: true })
-        .then(item => {
-          if (item) {
-            res.status(200).json({ message: 'Item updated', item })
+      if (role === 'user') throw new ErrorHandle(401, "You don't have access")
+      await Product.findOneAndUpdate({ _id: id }, data, { new: true, runValidators: true }).select('-items')
+        .then(product => {
+          if (product) {
+            res.status(200).json({ message: 'product updated', product })
           } else {
-            res.status(404).json({ message: 'Not found item' })
+            res.status(404).json({ message: 'Not found product' })
           }
         })
     } catch (error) {
-      res.status(500).json(error)
+      next(error)
+    }
+  },
+  updateItem: async (req, res, next) => {
+    const { itemId } = req.params
+    const { role } = req.user
+    try {
+      if (role === 'user') throw new ErrorHandle(401, "You don't have access")
+      await Item.findOneAndUpdate({ _id: itemId }, req.body, { new: true, runValidators: true })
+        .then(item => {
+          if (!item) throw new ErrorHandle(404, 'Not found item')
+          res.status(200).json({ message: 'Item updated', item })
+        })
+    } catch (error) {
+      next(error)
     }
   }
 }

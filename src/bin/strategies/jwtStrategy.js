@@ -8,7 +8,7 @@ opts.secretOrKey = process.env.KEY_SECRET_JWT
 
 export default new JwtStrategy(opts, (payload, done) => {
   const id = payload.sub
-  User.findById(id).then(user => {
+  User.findById(id).select('-password').then(user => {
     if (user === null) {
       return done(null, false)
     } else {
