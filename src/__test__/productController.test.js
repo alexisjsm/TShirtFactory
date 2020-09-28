@@ -240,14 +240,45 @@ describe('ProductController', () => {
       expect(res.statusCode).toBe(404)
       expect(res.body.message).toBe('Not found Item on product')
     })
+    it('Debe de devolver el product por el title NAVE', async () => {
+      const res = await request(server)
+        .get('/products/search/title?q=Nave')
+      expect(res.statusCode).toBe(200)
+      expect(res.body.products).toHaveLength(1)
+    })
+    it('Debe de devolver el producto por categorias', async () => {
+      const res = await request(server)
+        .get('/products/search?categories=Camisa')
+      expect(res.statusCode).toBe(200)
+      expect(res.body.products).toHaveLength(2)
+    })
+
+    it('Debe de devolver el producto por parent_sku', async () => {
+      const res = await request(server)
+        .get('/products/search?parentsku=CENE00')
+      expect(res.statusCode).toBe(200)
+      expect(res.body.products).toHaveLength(1)
+    })
+  })
+
+  describe('DELETE', () => {
+    it('Debe de de eliminar el productos indicado', async () => {
+      const res = await request(server)
+        .delete('/products/remove/')
+        .set('Authorization', `${tokenSeller}`)
+        .send({
+          products: ['5f67940fc155976374b99881']
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body.message).toBe('Removed product')
+    })
   })
 
   describe('CHECK ERROR', () => {
     beforeAll(async () => {
-      await Item.deleteMany()
       await Product.deleteMany()
+      await Item.deleteMany()
     })
-
     it('Debe de devolver un error', async () => {
       const res = await request(server)
         .get('/products/')

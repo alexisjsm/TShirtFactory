@@ -49,6 +49,46 @@ const ProductController = {
     }
   },
 
+  findByTitle: async (req, res, next) => {
+    const { q } = req.query
+    try {
+      await Product.find({
+        title: {
+          $regex: q,
+          $options: 'i'
+        }
+      }).lean().populate('items', null, Item).then(products => {
+        if (products.length <= 0) throw new ErrorHandle(404, 'Not found')
+        res.status(200).json({ message: 'Found product', products })
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  findByFilter: async (req, res, next) => {
+    const { categories, parentsku } = req.query
+    try {
+      await Product.find({
+        $or: [
+          {
+            categories: {
+              $in: categories
+            }
+          },
+          {
+            parent_sku: parentsku
+          }
+        ]
+      }).lean().populate('items', null, Item)
+        .then(products => {
+          if (products.length <= 0) throw new ErrorHandle(404, 'Not found products')
+          res.status(200).json({ message: 'Found products', products })
+        })
+    } catch (error) {
+      next(error)
+    }
+  },
+
   findProductById: async (req, res, next) => {
     const { id } = req.params
     try {
@@ -140,6 +180,22 @@ const ProductController = {
           if (!item) throw new ErrorHandle(404, 'Not found item')
           res.status(200).json({ message: 'Item updated', item })
         })
+    } catch (error) {
+      next(error)
+    }
+  },
+  remove: async (req, res, next) => {
+    const { role } = req.user
+    const { products } = req.body
+    try {
+      if (role === 'user') throw new ErrorHandle(401, "You don't have access")
+      await Product.deleteMany({ _id: { $in: products } }).then(async product => {
+        if (!product) throw new ErrorHandle(404, product)
+        await Item.deleteMany({ product: { $in: products } }).then(item => {
+          if (!item) throw new ErrorHandle(404, item)
+          res.status(200).json({ message: 'Removed product' })
+        })
+      })
     } catch (error) {
       next(error)
     }
