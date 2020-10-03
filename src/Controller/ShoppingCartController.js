@@ -8,35 +8,34 @@ const ShoppingCartController = {
     const { productId, itemId } = req.body
     const quantity = 1
     try {
-      await Product.findById(productId).then(async product => {
-        if (!product) throw new ErrorHandle(404, 'Not found product')
-        const { items } = product
-        if (!items.find(async value => value === itemId)) throw new ErrorHandle(409, 'Not found item in product')
-        await Item.findById(itemId).then(async item => {
-          if (!item) throw new ErrorHandle(404, 'Not found item')
-          const subtotal = subTotal(product.price, quantity)
-          await ShoppingCart.create({ products: [{ productId, itemId, quantity, subtotal }] }).then(cart => {
-            if (!cart) throw new ErrorHandle(400, 'Something is wrong')
-            res.status(201).json({ message: 'Product in cart', cart })
-          })
+      const product = await Product.findById(productId)
+        .then(product => product)
+        .catch(() => { throw new ErrorHandle(404, 'Not found product') })
+      const { items } = product
+      const item = await Item.findById(itemId)
+        .then(item => item)
+        .catch(() => { throw new ErrorHandle(404, 'Not found item ') })
+      if (!items.find(async value => value0 === itemId)) throw new ErrorHandle(400, 'Not found item in product')
+
+      const subtotal = subTotal(product.price, quantity)
+      await ShoppingCart.create({ products: [{ productId, itemId, quantity, subtotal }] })
+        .then(cart => {
+          res.status(201).json({ message: 'Product in cart', cart })
         })
-      })
-        .catch(error => { throw new ErrorHandle(400, error) })
+        .catch(() => { throw new ErrorHandle(400, 'Something is wrong') })
     } catch (error) {
       next(error)
     }
   },
 
-  putOnCart: async (req, res, next) => {
+  pushOnCart: async (req, res, next) => {
     const { cartId } = req.params
     const { productId, itemId, quantity } = req.body
     try {
       const cart = await ShoppingCart.findById(cartId).populate('products.productId').populate('products.itemId')
-        .then((cart) => {
-          return cart
-        })
+        .then(cart => cart)
         .catch(() => { throw new ErrorHandle(404, 'Not found cart') })
-      const { products } = cart.toJSON()
+      const { products } = cart
       const subcart = products.map(element => element).find(value => value.productId._id.toString() === productId && value.itemId._id.toString() === itemId)
       if (subcart) {
         const { _id } = subcart

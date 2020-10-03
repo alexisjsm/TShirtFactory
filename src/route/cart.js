@@ -4,6 +4,7 @@ import ShoppingCartController from '../Controller/ShoppingCartController'
 const route = Router()
 
 route.post('/add', ShoppingCartController.addToCart)
-route.post('/put/:cartId', ShoppingCartController.putOnCart)
+
+route.post('/push/:cartId', ShoppingCartController.pushOnCart)
 
 export default route
