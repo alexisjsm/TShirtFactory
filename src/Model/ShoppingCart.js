@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 
 const ShoppingCartSchema = new mongoose.Schema({
 
-  product: [{
+  products: [{
     productId: {
       type: Schema.Types.ObjectId,
       required: true,
@@ -21,14 +21,16 @@ const ShoppingCartSchema = new mongoose.Schema({
       type: Schema.Types.Decimal128,
       required: true
     }
-  }],
-
-  total_price: {
-    type: Schema.Types.Decimal128
-  }
+  }]
 },
 {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
   timestamps: true
+})
+
+ShoppingCartSchema.virtual('total_price').get(function () {
+  return this.products.map(({ subtotal }) => subtotal).reduce((a, b) => parseFloat(a) + parseFloat(b))
 })
 
 const ShoppingCart = mongoose.model('ShoppingCart', ShoppingCartSchema)
