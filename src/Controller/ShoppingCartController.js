@@ -30,7 +30,10 @@ const ShoppingCartController = {
 
   pushOnCart: async (req, res, next) => {
     const { cartId } = req.params
-    const { productId, itemId, quantity } = req.body
+    const { productId, itemId } = req.body
+    let { quantity } = req.body
+    quantity = quantity === 0 ? 1 : quantity
+
     try {
       const cart = await ShoppingCart.findById(cartId).populate('products.productId').populate('products.itemId')
         .then(cart => cart)
@@ -64,10 +67,38 @@ const ShoppingCartController = {
         const subtotal = subTotal(price, quantity)
         await ShoppingCart.findByIdAndUpdate(cartId, { $push: { products: { productId, itemId, quantity, subtotal } } }, { new: true, runValidators: true })
           .then(newcart => {
-            if (!newcart) throw new ErrorHandle(400, 'Something is wrong')
             res.status(200).json({ message: 'Add cart', newcart })
           })
+          .catch(() => { throw new ErrorHandle(400, 'Something is wrong') })
       }
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  pullOnCart: async (req, res, next) => {
+    const { cartId } = req.params
+    const { subcartId } = req.body
+    try {
+      await ShoppingCart.findOneAndUpdate({
+        _id: cartId,
+        'products._id': subcartId
+      },
+      {
+        $pull: {
+          products: {
+            _id: subcartId
+          }
+        }
+      },
+      {
+        new: true,
+        runValidators: true
+      })
+        .then(cart => {
+          if (!cart) throw new ErrorHandle(404, 'Not Found cart')
+          res.status(200).json({ message: 'removed item on cart', cart })
+        })
     } catch (error) {
       next(error)
     }
