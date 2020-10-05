@@ -9,15 +9,21 @@ const ShoppingCartController = {
     const quantity = 1
     try {
       const product = await Product.findById(productId)
-        .then(product => product)
-        .catch(() => { throw new ErrorHandle(404, 'Not found product') })
-      const { items } = product
-      const item = await Item.findById(itemId)
-        .then(item => item)
-        .catch(() => { throw new ErrorHandle(404, 'Not found item ') })
-      if (!items.find(async value => value0 === itemId)) throw new ErrorHandle(400, 'Not found item in product')
+        .then(product => {
+          if (!product) throw new ErrorHandle(404, 'Not found product')
+          return product
+        })
 
-      const subtotal = subTotal(product.price, quantity)
+      const { price, items } = product
+      const item = await Item.findById(itemId)
+        .then(item => {
+          if (!item) throw new ErrorHandle(404, 'Not found item')
+          return item
+        })
+
+      if (!items.find(value => value.toString() === itemId && item.id === itemId)) throw new ErrorHandle(404, 'Not found item in product')
+
+      const subtotal = subTotal(price, quantity)
       await ShoppingCart.create({ products: [{ productId, itemId, quantity, subtotal }] })
         .then(cart => {
           res.status(201).json({ message: 'Product in cart', cart })
@@ -36,8 +42,11 @@ const ShoppingCartController = {
 
     try {
       const cart = await ShoppingCart.findById(cartId).populate('products.productId').populate('products.itemId')
-        .then(cart => cart)
-        .catch(() => { throw new ErrorHandle(404, 'Not found cart') })
+        .then(cart => {
+          if (!cart) throw new ErrorHandle(404, 'Not found cart')
+          return cart
+        })
+
       const { products } = cart
       const subcart = products.map(element => element).find(value => value.productId._id.toString() === productId && value.itemId._id.toString() === itemId)
       if (subcart) {
@@ -47,27 +56,29 @@ const ShoppingCartController = {
         const subtotal = subTotal(price, quantity)
 
         await ShoppingCart.findOneAndUpdate({ 'products._id': _id }, { 'products.$.quantity': quantity, 'products.$.subtotal': subtotal }, { new: true, runValidators: true })
-          .then(newcart => {
-            res.status(200).json({ message: 'Updated cart', newcart })
+          .then(cart => {
+            if (!cart) throw new ErrorHandle(404, 'Not found cart')
+            res.status(200).json({ message: 'Updated cart', cart })
           })
           .catch(() => { throw new ErrorHandle(400, 'Something is wrong') })
       } else {
         const product = await Product.findById(productId)
           .then(product => {
+            if (!product) throw new ErrorHandle(404, 'Not found product')
             return product
           })
-          .catch(() => { throw new ErrorHandle(404, 'Not found product') })
         const item = await Item.findById(itemId)
           .then(item => {
+            if (!product) throw new ErrorHandle(404, 'Not found item')
             return item
           })
-          .catch(() => { throw new ErrorHandle(404, 'Not found item') })
+
         const { price, items } = product
-        if (!items.find(async value => value === itemId)) throw new ErrorHandle(400, 'Not found item on product')
+        if (!items.find(value => value.toString() === itemId && item.id === itemId)) throw new ErrorHandle(400, 'Not found item on product')
         const subtotal = subTotal(price, quantity)
         await ShoppingCart.findByIdAndUpdate(cartId, { $push: { products: { productId, itemId, quantity, subtotal } } }, { new: true, runValidators: true })
-          .then(newcart => {
-            res.status(200).json({ message: 'Add cart', newcart })
+          .then(cart => {
+            res.status(200).json({ message: 'Add cart', cart })
           })
           .catch(() => { throw new ErrorHandle(400, 'Something is wrong') })
       }
@@ -99,6 +110,17 @@ const ShoppingCartController = {
           if (!cart) throw new ErrorHandle(404, 'Not Found cart')
           res.status(200).json({ message: 'removed item on cart', cart })
         })
+    } catch (error) {
+      next(error)
+    }
+  },
+  removeToCart: async (req, res, next) => {
+    try {
+      const { cartId } = req.params
+      await ShoppingCart.findByIdAndDelete(cartId).then(cart => {
+        if (!cart) throw new ErrorHandle(404, 'Not found cart')
+        res.status(200).json({ message: 'Removed cart' })
+      })
     } catch (error) {
       next(error)
     }
