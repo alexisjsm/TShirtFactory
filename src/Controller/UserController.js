@@ -8,18 +8,15 @@ const options = {
 
 const UserController = {
   register: async (req, res, next) => {
+    const { email } = req.body
     try {
-      const { email } = req.body
       await User.findOne({ email: email })
-        .then(async email => {
-          if (email) {
-            throw new ErrorHandle(409, 'This user exists')
-          } else {
-            await User.create(req.body)
-              .then(user => {
-                res.status(200).json({ message: 'User created' })
-              })
-          }
+        .then(user => {
+          if (user) throw new ErrorHandle(409, 'This user exists')
+        })
+      await User.create(req.body)
+        .then(user => {
+          res.status(200).json({ message: 'User created' })
         })
     } catch (error) {
       next(error)
