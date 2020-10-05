@@ -174,6 +174,15 @@ describe('ShoppingCart Controller', () => {
     })
   })
 
+  describe('FIND', () => {
+    test('Debe de devolver la cesta', async () => {
+      const res = await request(server)
+        .get(`/cart/${cartId}`)
+      expect(res.statusCode).toBe(200)
+      expect(res.body.message).toBe('Find cart')
+    })
+  })
+
   describe('DELETE', () => {
     test('Debe eliminar la cesta', async () => {
       const res = await request(server)

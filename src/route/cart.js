@@ -3,6 +3,8 @@ import ShoppingCartController from '../Controller/ShoppingCartController'
 
 const route = Router()
 
+route.get('/:cartId', ShoppingCartController.getCartById)
+
 route.post('/add', ShoppingCartController.addToCart)
 
 route.patch('/push/:cartId', ShoppingCartController.pushOnCart)

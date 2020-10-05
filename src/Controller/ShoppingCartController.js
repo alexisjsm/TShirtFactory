@@ -124,6 +124,18 @@ const ShoppingCartController = {
     } catch (error) {
       next(error)
     }
+  },
+
+  getCartById: async (req, res, next) => {
+    try {
+      const { cartId } = req.params
+      await ShoppingCart.findById(cartId).then(cart => {
+        if (!cart) throw new ErrorHandle(404, 'Not found cart')
+        res.status(200).json({ message: 'Find cart', cart })
+      })
+    } catch (error) {
+      next(error)
+    }
   }
 }
 
