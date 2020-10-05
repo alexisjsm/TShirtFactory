@@ -2,6 +2,7 @@ import Product from '../Model/Product'
 import mongoose from 'mongoose'
 import Item from '../Model/Item'
 import { ErrorHandle } from '../bin/ErrorHandle'
+import { restart } from 'nodemon'
 
 const ProductController = {
 
@@ -184,18 +185,53 @@ const ProductController = {
       next(error)
     }
   },
+
+  removeItem: async (req, res, next) => {
+    const { role } = req.user
+    const { itemId } = req.body
+    try {
+      if (role === 'user') throw new ErrorHandle(404, "You don't have access")
+      const product = await Product.findOneAndUpdate({
+        items: {
+          $in: itemId
+        }
+      },
+      {
+        $pull: {
+          items: itemId
+        }
+      })
+        .then(product => {
+          if (!product) throw new ErrorHandle(404, 'Not found product')
+          return product
+        })
+      const item = await Item.findByIdAndRemove(itemId)
+        .then(item => {
+          if (!item) throw new ErrorHandle(404, 'Not found item')
+          return item
+        })
+      if (item && product) res.status(200).json({ message: 'Removed item on product' })
+    } catch (error) {
+      next(error)
+    }
+  },
+
   remove: async (req, res, next) => {
     const { role } = req.user
     const { products } = req.body
     try {
       if (role === 'user') throw new ErrorHandle(401, "You don't have access")
-      await Product.deleteMany({ _id: { $in: products } }).then(async product => {
-        if (!product) throw new ErrorHandle(404, product)
-        await Item.deleteMany({ product: { $in: products } }).then(item => {
-          if (!item) throw new ErrorHandle(404, item)
-          res.status(200).json({ message: 'Removed product' })
+      const product = await Product.deleteMany({ _id: { $in: products } })
+        .then(product => {
+          if (!product) throw new ErrorHandle(404, 'Not found product')
+          return product
         })
-      })
+      const item = await Item.deleteMany({ product: { $in: products } })
+        .then(item => {
+          if (!item) throw new ErrorHandle(404, 'Not found item')
+          return item
+        })
+      res.status(200).json({ product, item })
     } catch (error) {
       next(error)
     }

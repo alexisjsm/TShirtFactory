@@ -16,6 +16,7 @@ route.put('/change/product/:id', passport.authenticate('jwt', { session: false }
 route.put('/add/item/:id', passport.authenticate('jwt', { session: false }), ProductController.addItem)
 route.put('/change/item/:itemId', passport.authenticate('jwt', { session: false }), ProductController.updateItem)
 
-route.delete('/remove', passport.authenticate('jwt', { session: false }), ProductController.remove)
+route.delete('/remove/item/', passport.authenticate('jwt', { session: false }), ProductController.removeItem)
+route.delete('/remove/product/', passport.authenticate('jwt', { session: false }), ProductController.remove)
 
 export default route

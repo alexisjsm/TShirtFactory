@@ -120,25 +120,34 @@ describe('ProductController', () => {
 
   describe('UPDATE', () => {
     beforeAll(async () => {
-      const product = await Product.create({
+      await Product.insertMany({
         _id: '5f67940fc155976374b99876',
         parent_sku: 'CC00',
         title: 'Camisa de cuadritos',
         description: 'Camisa de algodón con cuadritos de colores',
         price: 7.99,
         categories: ['Camisa'],
-        items: ['5f67940fc155976374b99877']
+        items: ['5f67940fc155976374b99877', '5f7b7e012d206f932b45a295']
       })
-      product.save()
-      const item = await Item({
-        _id: '5f67940fc155976374b99877',
-        child_sku: 'CCVM',
-        stock: 19,
-        color: 'Rojo',
-        size: 'M',
-        product: '5f67940fc155976374b99876'
-      })
-      item.save()
+
+      await Item.insertMany([
+        {
+          _id: '5f67940fc155976374b99877',
+          child_sku: 'CCVM',
+          stock: 19,
+          color: 'Rojo',
+          size: 'M',
+          product: '5f67940fc155976374b99876'
+        },
+        {
+          _id: '5f7b7e012d206f932b45a295',
+          child_sku: 'CCAMM',
+          stock: 19,
+          color: 'Amarillo',
+          size: 'M',
+          product: '5f67940fc155976374b99876'
+        }
+      ])
     })
 
     it('Debe de actualizar el titulo de un producto', async () => {
@@ -262,15 +271,29 @@ describe('ProductController', () => {
   })
 
   describe('DELETE', () => {
-    it('Debe de de eliminar el productos indicado', async () => {
+    it('Debe de eliminar un articulo del producto indicado', async () => {
       const res = await request(server)
-        .delete('/products/remove/')
+        .delete('/products/remove/item')
         .set('Authorization', `${tokenSeller}`)
         .send({
-          products: ['5f67940fc155976374b99881']
+          itemId: '5f7b7e012d206f932b45a295'
         })
       expect(res.statusCode).toBe(200)
-      expect(res.body.message).toBe('Removed product')
+      expect(res.body.message).toBe('Removed item on product')
+    })
+    it('Debe de de eliminar el productos indicado', async () => {
+      const res = await request(server)
+        .delete('/products/remove/product/')
+        .set('Authorization', `${tokenSeller}`)
+        .send({
+          products: ['5f67940fc155976374b99876']
+        })
+      expect(res.statusCode).toBe(200)
+      expect(res.body.product).toMatchObject({
+        n: 1,
+        ok: 1,
+        deletedCount: 1
+      })
     })
   })
 
