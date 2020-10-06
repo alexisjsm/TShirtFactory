@@ -7,6 +7,7 @@ import routerUser from './route/users'
 import routerAuth from './route/auth'
 import routerProduct from './route/products'
 import routerCart from './route/cart'
+import routerAddressBook from './route/addressbook'
 
 import passport from 'passport'
 import jwtStrategy from './bin/strategies/jwtStrategy'
@@ -35,6 +36,7 @@ app.use('/products', routerProduct)
 app.use('/users', routerUser)
 app.use('/auth', routerAuth)
 app.use('/cart', routerCart)
+app.use('/addressbook', routerAddressBook)
 
 /* Handle Error */
 app.use((err, req, res, next) => {

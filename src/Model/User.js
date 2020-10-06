@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import bcrypt from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['man', 'woman', 'unknown'],
     default: 'unknown'
+  },
+  address: {
+    type: [Schema.Types.ObjectId],
+    ref: 'AddressBook'
   },
   role: {
     type: String,
