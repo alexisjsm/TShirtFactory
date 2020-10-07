@@ -1,5 +1,6 @@
 import { ErrorHandle } from '../bin/ErrorHandle'
 import AddressBook from '../Model/Addressbook'
+import Product from '../Model/Product'
 import User from '../Model/User'
 const AddressBookController = {
   register: async (req, res, next) => {
@@ -20,7 +21,7 @@ const AddressBookController = {
           return address
         })
         .catch(error => error)
-      const user = await User.updateOne({ _id: id }, {
+      const user = await User.findByIdAndUpdate({ _id: id }, {
         $push: {
           address: address.id
         }
@@ -38,19 +39,36 @@ const AddressBookController = {
     const { id: userId } = req.user
     const { name, lastname, country, location, state, postcode, telephone, mobile, isDefault } = req.body
     const data = { name, lastname, country, location, state, postcode, telephone, mobile, isDefault }
-    console.log(data)
     try {
       await AddressBook.find({ userId: userId, isDefault: { $eq: isDefault } })
         .then(address => {
           if (address.length) throw new ErrorHandle(409, 'This address can not be default')
         })
-        .catch(error => error)
       await AddressBook.findByIdAndUpdate(id, data, { new: true, runValidators: true, omitUndefined: true })
         .then(address => {
           if (!address) throw new ErrorHandle(404, 'Not found address')
           res.status(200).json({ message: 'Updated address', address })
         })
-        .catch(error => error)
+        .catch(error => { throw new ErrorHandle(400, error) })
+    } catch (error) {
+      next(error)
+    }
+  },
+  remove: async (req, res, next) => {
+    const { id } = req.params
+    const { id: userId } = req.user
+
+    try {
+      const address = await AddressBook.findByIdAndRemove(id).then(address => {
+        if (!address) throw new ErrorHandle(404, 'Not found address')
+        return address
+      })
+      const user = await User.findOneAndUpdate({ _id: userId, address: { $in: id } }, { $pull: { address: { $in: id } } })
+        .then(user => {
+          if (!user) throw new ErrorHandle(404, 'Not found address on user')
+          return user
+        })
+      if (user && address) res.status(200).json({ message: 'Remove address' })
     } catch (error) {
       next(error)
     }

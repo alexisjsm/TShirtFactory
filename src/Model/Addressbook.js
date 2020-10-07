@@ -27,7 +27,7 @@ const AddressBookSchema = new mongoose.Schema({
     maxlength: 5,
     validate: {
       validator: function (v) {
-        return /\d{9}/.test(v)
+        return /\d{5}/.test(v)
       }
     }
   },
