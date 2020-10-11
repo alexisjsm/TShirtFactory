@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
     type: [Schema.Types.ObjectId],
     ref: 'AddressBook'
   },
+  wallet: {
+    type: [Schema.Types.ObjectId],
+    ref: 'PaymentSystem'
+  },
   role: {
     type: String,
     enum: ['user', 'seller', 'admin'],
