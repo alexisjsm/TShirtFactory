@@ -1,24 +1,13 @@
 import request from 'supertest'
-import mongoose from 'mongoose'
 import { server } from '../bin/server'
 import Product from '../Model/Product'
 import Item from '../Model/Item'
 import ShoppingCart from '../Model/ShoppingCart'
 
-const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
-
 describe('ShoppingCart Controller', () => {
   let cartId, subcartId
 
   beforeAll(async () => {
-    await mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false
-    })
-    await server.listen(3000)
-
     await Product.insertMany([
       {
         _id: '5f7a02ca2d206f932b45a28a',
@@ -105,7 +94,7 @@ describe('ShoppingCart Controller', () => {
     await Product.deleteMany()
     await Item.deleteMany()
     await ShoppingCart.deleteMany()
-    server.close()
+    await server.close()
   })
 
   describe('ADD', () => {

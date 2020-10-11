@@ -1,4 +1,3 @@
-import mongoose from 'mongoose'
 import { server } from '../bin/server'
 import User from '../Model/User'
 import request from 'supertest'
@@ -8,13 +7,6 @@ const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
 describe('UserController', () => {
   let token, tokenAdmin
   beforeAll(async () => {
-    await mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false
-    })
-    await server.listen(3000)
     const userAdmin = new User({
       name: 'admin',
       lastname: 'username',
@@ -74,6 +66,7 @@ describe('UserController', () => {
   })
 
   describe('UPDATE', () => {
+    let userToken
     const userCreate = {
       _id: '5f6df853f4b195c54e00341f',
       name: 'Roger',
@@ -85,11 +78,19 @@ describe('UserController', () => {
     beforeAll(async () => {
       const user = new User(userCreate)
       user.save()
+      const res = await request(server)
+      .post('/auth/login')
+      .send({
+        email: 'rogerjackson@gmail.com',
+        password: 'password'
+      })
+      userToken = res.body.refresh_token
     })
 
     it('Debe de modificar el nombre del usuario', async () => {
       const res = await request(server)
-        .put('/users/change/5f6df853f4b195c54e00341f')
+        .put('/users/change/')
+        .set('Authorization',`${userToken}`)
         .send({
           name: 'Felix'
         })
@@ -110,7 +111,8 @@ describe('UserController', () => {
 
     it('Debe de lanzar un error por email duplicado', async () => {
       const res = await request(server)
-        .put('/users/change/5f6df853f4b195c54e00341f')
+        .put('/users/change/')
+        .set('Authorization',`${userToken}`)
         .send({
           email: 'frankroger@gmail.com'
         })
@@ -120,7 +122,8 @@ describe('UserController', () => {
 
     it('Debe de lanzar un error por conflicto de genero', async () => {
       const res = await request(server)
-        .put('/users/change/5f6df853f4b195c54e00341f')
+        .put('/users/change/')
+        .set('Authorization',`${userToken}`)
         .send({
           genre: 'dog'
         })

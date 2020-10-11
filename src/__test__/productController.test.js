@@ -1,22 +1,12 @@
 import request from 'supertest'
-import mongoose from 'mongoose'
-import { server } from '../bin/server'
+import { server} from '../bin/server'
 import Product from '../Model/Product'
 import Item from '../Model/Item'
 import User from '../Model/User'
 
-const { DB_USERNAME, DB_PASSWORD, DB_HOSTNAME, DB_DATABASE } = process.env
 
 describe('ProductController', () => {
   beforeAll(async () => {
-    await mongoose.connect(`mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOSTNAME}:27017/${DB_DATABASE}`, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      useCreateIndex: true,
-      useFindAndModify: false
-    })
-    await server.listen(3000)
-
     const seller = new User({
       name: 'Maria',
       lastname: 'Rodriguez',

@@ -6,7 +6,7 @@ const route = Router()
 
 route.post('/register', UserController.register)
 
-route.put('/change/:id', UserController.update)
+route.put('/change/', passport.authenticate('jwt', { session: false }), UserController.update)
 route.put('/change/role/:id', passport.authenticate('jwt', { session: false }), UserController.updateRol)
 
 route.delete('/remove/:id', passport.authenticate('jwt', { session: false }), UserController.remove)
