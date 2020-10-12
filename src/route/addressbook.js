@@ -4,6 +4,8 @@ import AddressBookController from '../Controller/AddressBookController'
 
 const route = Router()
 
+route.get('/', passport.authenticate('jwt', {session: false}), AddressBookController.getAddress)
+
 route.post('/register/', passport.authenticate('jwt', { session: false }), AddressBookController.register)
 
 route.put('/update/:id', passport.authenticate('jwt', { session: false }), AddressBookController.update)

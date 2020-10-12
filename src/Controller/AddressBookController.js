@@ -11,7 +11,6 @@ const AddressBookController = {
       if (isDefault) {
         await AddressBook.find({ userId: id, isDefault: { $eq: isDefault } })
           .then(address => {
-            console.log(address)
             if (address.length) throw new ErrorHandle(409, 'This address can not be default')
           })
       }
@@ -20,7 +19,9 @@ const AddressBookController = {
           if (!address) throw new ErrorHandle(409, 'Something is wrong')
           return address
         })
-        .catch(error => error)
+        .catch(error => {
+          throw new ErrorHandle(409, error)
+        })
       const user = await User.findByIdAndUpdate({ _id: id }, {
         $push: {
           address: address.id
@@ -44,12 +45,17 @@ const AddressBookController = {
         .then(address => {
           if (address.length) throw new ErrorHandle(409, 'This address can not be default')
         })
-      await AddressBook.findByIdAndUpdate(id, data, { new: true, runValidators: true, omitUndefined: true })
+
+      const address = await AddressBook.findByIdAndUpdate(id, data, { new: true, runValidators: true, omitUndefined: true })
         .then(address => {
           if (!address) throw new ErrorHandle(404, 'Not found address')
-          res.status(200).json({ message: 'Updated address', address })
+          return address
         })
-        .catch(error => { throw new ErrorHandle(400, error) })
+        .catch((error) => {
+          if (error.statusCode) next(error)
+          throw new ErrorHandle(400, error)
+        })
+      if (address) res.status(200).json({ message: 'Updated address', address })
     } catch (error) {
       next(error)
     }
@@ -69,6 +75,18 @@ const AddressBookController = {
           return user
         })
       if (user && address) res.status(200).json({ message: 'Remove address' })
+    } catch (error) {
+      next(error)
+    }
+  },
+  getAddress: async (req, res, next) => {
+    const { id: userId } = req.user
+    try {
+      await AddressBook.findOne({userId}).lean()
+      .then(addresses => {
+        if (!addresses) throw new ErrorHandle(404, 'Not found address')
+        res.status(200).json({message: 'All addresses', addresses})
+      })
     } catch (error) {
       next(error)
     }
