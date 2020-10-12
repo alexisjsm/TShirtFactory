@@ -3,7 +3,8 @@ import { ErrorHandle } from '../bin/ErrorHandle'
 
 const options = {
   new: true,
-  runValidators: true
+  runValidators: true,
+
 }
 
 const UserController = {
@@ -24,11 +25,16 @@ const UserController = {
   },
   update: async (req, res, next) => {
     try {
-      const { id } = req.params
-      const { role, ...data } = req.body // exclude role
+      const { id } = req.user
+      const {name, lastname, genre,email, password } = req.body 
+      const data = {name, lastname, genre, email,password }
       await User.findOneAndUpdate({
         _id: id
-      }, data, options).select('-role -password').then(user => {
+      }, data, {
+        new: true,
+        runValidators: true,
+        omitUndefined: true
+      }).select('-role -password').then(user => {
         if (!user) throw new ErrorHandle(404, 'Not found user')
 
         res.status(200).json({ message: 'User updated', user })
