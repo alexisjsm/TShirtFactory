@@ -1,4 +1,3 @@
-import { use } from 'passport'
 import { ExtractJwt, Strategy as JwtStrategy } from 'passport-jwt'
 import User from '../../Model/User'
 

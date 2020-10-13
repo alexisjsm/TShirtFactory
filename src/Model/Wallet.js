@@ -6,7 +6,7 @@ const WalletSchema = new mongoose.Schema({
     required: true,
     ref: 'User'
   },
-  creditcard: {
+  creditCard: {
   
       type: {
         type: String,
@@ -17,6 +17,18 @@ const WalletSchema = new mongoose.Schema({
       title: {
         type: String,
         maxlength: 28,
+        required: true
+      },
+
+      cardNumber: {
+        type: String,
+        minlength: 19,
+        maxlength: 19,
+        validate: {
+          validator : function (v) {
+            return /^[\d ]{19}$/.test(v)
+          }
+        },
         required: true
       },
       valid: {
@@ -33,6 +45,7 @@ const WalletSchema = new mongoose.Schema({
       },
       balance: {
         type: Schema.Types.Decimal128,
+        default: 0,
         required: true
       },
       isSelect: {
