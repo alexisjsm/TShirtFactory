@@ -42,10 +42,26 @@ const userSchema = new mongoose.Schema({
 })
 
 userSchema.pre('save', async function (next) {
-  const salt = bcrypt.genSaltSync(10)
-  const password = this.password
-  this.password = await bcrypt.hashSync(password, salt)
-  next()
+  if(!this.isModified('password')) return next()
+  try{
+  const salt = await bcrypt.genSalt(10)
+  console.log(salt)
+  this.password = await bcrypt.hash(this.password, salt)
+  return next()
+  } catch (error) {
+    return next(error)
+  }
+})
+
+
+userSchema.pre('findOneAndUpdate', async function (next) {
+  try{
+      const salt = await bcrypt.genSalt(10)
+      this._update.password = await bcrypt.hash(this._update.password, salt)
+      return next()
+  } catch (error) {
+    return next(error)
+  }
 })
 
 const User = mongoose.model('User', userSchema)
