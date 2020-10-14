@@ -1,7 +1,7 @@
 import { ErrorHandle } from '../bin/ErrorHandle'
 import AddressBook from '../Model/Addressbook'
-import Product from '../Model/Product'
 import User from '../Model/User'
+
 const AddressBookController = {
   register: async (req, res, next) => {
     const { id } = req.user

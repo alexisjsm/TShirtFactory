@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema({
     type: [Schema.Types.ObjectId],
     ref: 'PaymentSystem'
   },
+  order: {
+    type: [Schema.Types.ObjectId],
+    ref: 'Order'
+  },
   role: {
     type: String,
     enum: ['user', 'seller', 'admin'],
@@ -45,7 +49,6 @@ userSchema.pre('save', async function (next) {
   if(!this.isModified('password')) return next()
   try{
   const salt = await bcrypt.genSalt(10)
-  console.log(salt)
   this.password = await bcrypt.hash(this.password, salt)
   return next()
   } catch (error) {
@@ -55,6 +58,7 @@ userSchema.pre('save', async function (next) {
 
 
 userSchema.pre('findOneAndUpdate', async function (next) {
+  if (!this._update.password) return next()
   try{
       const salt = await bcrypt.genSalt(10)
       this._update.password = await bcrypt.hash(this._update.password, salt)
