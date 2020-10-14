@@ -67,17 +67,17 @@ describe('UserController', () => {
 
   describe('UPDATE', () => {
     let userToken
-    const userCreate = {
-      _id: '5f6df853f4b195c54e00341f',
-      name: 'Roger',
-      lastname: 'Jackson',
-      email: 'rogerjackson@gmail.com',
-      genre: 'man',
-      password: 'password'
-    }
+
     beforeAll(async () => {
-      const user = new User(userCreate)
-      user.save()
+      const user = new User({
+        _id: '5f6df853f4b195c54e00341f',
+        name: 'Roger',
+        lastname: 'Jackson',
+        email: 'rogerjackson@gmail.com',
+        genre: 'man',
+        password: 'password'
+      })
+      await user.save()
       const res = await request(server)
       .post('/auth/login')
       .send({
@@ -90,7 +90,7 @@ describe('UserController', () => {
     it('Debe de modificar el nombre del usuario', async () => {
       const res = await request(server)
         .put('/users/change/')
-        .set('Authorization',`${userToken}`)
+        .set('Authorization',userToken)
         .send({
           name: 'Felix'
         })
@@ -101,7 +101,7 @@ describe('UserController', () => {
     it('Debe de modificar el rol', async () => {
       const res = await request(server)
         .put('/users/change/role/5f6df853f4b195c54e00341f')
-        .set('Authorization', `${tokenAdmin}`)
+        .set('Authorization', tokenAdmin)
         .send({
           role: 'seller'
         })
@@ -112,7 +112,7 @@ describe('UserController', () => {
     it('Debe de lanzar un error por email duplicado', async () => {
       const res = await request(server)
         .put('/users/change/')
-        .set('Authorization',`${userToken}`)
+        .set('Authorization',userToken)
         .send({
           email: 'frankroger@gmail.com'
         })
@@ -123,7 +123,7 @@ describe('UserController', () => {
     it('Debe de lanzar un error por conflicto de genero', async () => {
       const res = await request(server)
         .put('/users/change/')
-        .set('Authorization',`${userToken}`)
+        .set('Authorization',userToken)
         .send({
           genre: 'dog'
         })
@@ -136,7 +136,7 @@ describe('UserController', () => {
     it('Debe de lanzar un error al intentar eliminar un usuario sin permiso', async () => {
       const res = await request(server)
         .delete('/users/remove/5f6df853f4b195c54e00341f')
-        .set('Authorization', `${token}`)
+        .set('Authorization', token)
       expect(res.statusCode).toBe(401)
       expect(res.body.message).toBe("You don't have access")
     })
@@ -144,27 +144,13 @@ describe('UserController', () => {
     it('Debe de eliminar un usuario siendo administrador', async () => {
       const res = await request(server)
         .delete('/users/remove/5f6df853f4b195c54e00341f')
-        .set('Authorization', `${tokenAdmin}`)
+        .set('Authorization', tokenAdmin)
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Deleted user')
     })
   })
 
   describe('FIND', () => {
-    let token
-
-    beforeAll(async () => {
-      const res = await request(server)
-        .post('/auth/login')
-        .send(
-          {
-            email: 'frankroger@gmail.com',
-            password: 'password'
-          }
-        )
-      token = res.body.refresh_token
-    })
-
     it('Debe de obtener el perfil del usuario', async () => {
       const res = await request(server)
         .get('/users/profile')

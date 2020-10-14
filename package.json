@@ -6,7 +6,8 @@
     "build": "babel src -d dist",
     "dev": "nodemon --exec babel-node -r dotenv/config src/bin/server.js",
     "lint": "eslint src/",
-    "test": "jest  --detectOpenHandles"
+    "test": "jest  --detectOpenHandles",
+    "test:coverage":  "jest  --coverage --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",
