@@ -3,6 +3,7 @@ require('dotenv').config({
 })
 
 module.exports = {
+  rootDir: './src',
   verbose: true,
   testEnvironment: 'node'
 }
