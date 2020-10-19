@@ -2,7 +2,6 @@ import Product from '../Model/Product'
 import mongoose from 'mongoose'
 import Item from '../Model/Item'
 import { ErrorHandle } from '../bin/ErrorHandle'
-import { restart } from 'nodemon'
 
 const ProductController = {
 

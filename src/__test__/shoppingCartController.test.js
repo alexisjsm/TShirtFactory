@@ -153,7 +153,7 @@ describe('ShoppingCart Controller', () => {
       })
     })
 
-    test('Debe de lanzar un error al añadir un product si el articulo no existe ', async () => {
+    test('Debe de lanzar un error al añadir un product si el articulo no existe', async () => {
       const res = await request(server)
         .post('/cart/add/')
         .send({

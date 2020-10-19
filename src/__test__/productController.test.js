@@ -5,7 +5,6 @@ import Product from '../Model/Product'
 import Item from '../Model/Item'
 import User from '../Model/User'
 
-
 describe('ProductController', () => {
   beforeAll(async () => {
     const seller = new User({
