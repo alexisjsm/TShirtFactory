@@ -3,22 +3,19 @@ import { ErrorHandle } from '../bin/ErrorHandle'
 
 const options = {
   new: true,
-  runValidators: true,
-
+  runValidators: true
 }
 
 const UserController = {
   register: async (req, res, next) => {
     const { email } = req.body
     try {
-      await User.findOne({ email: email })
-        .then(user => {
-          if (user) throw new ErrorHandle(409, 'This user exists')
-        })
-      await User.create(req.body)
-        .then(user => {
-          res.status(200).json({ message: 'User created' })
-        })
+      await User.findOne({ email: email }).then((user) => {
+        if (user) throw new ErrorHandle(409, 'This user exists')
+      })
+      await User.create(req.body).then((user) => {
+        res.status(200).json({ message: 'User created' })
+      })
     } catch (error) {
       next(error)
     }
@@ -26,20 +23,26 @@ const UserController = {
   update: async (req, res, next) => {
     try {
       const { id } = req.user
-      const {name, lastname, genre,email, password } = req.body 
-      const data = {name, lastname, genre, email,password }
-      await User.findOneAndUpdate({
-        _id: id
-      }, data, {
-        new: true,
-        runValidators: true,
-        omitUndefined: true
-      }).select('-role -password').then(user => {
-        if (!user) throw new ErrorHandle(404, 'Not found user')
+      const { name, lastname, genre, email, password } = req.body
+      const data = { name, lastname, genre, email, password }
+      await User.findOneAndUpdate(
+        {
+          _id: id
+        },
+        data,
+        {
+          new: true,
+          runValidators: true,
+          omitUndefined: true
+        }
+      )
+        .select('-role -password')
+        .then((user) => {
+          if (!user) throw new ErrorHandle(404, 'Not found user')
 
-        res.status(200).json({ message: 'User updated', user })
-      })
-        .catch(error => {
+          res.status(200).json({ message: 'User updated', user })
+        })
+        .catch((error) => {
           if (error.code) next(error)
           throw new ErrorHandle(409, error.message)
         })
@@ -52,15 +55,22 @@ const UserController = {
     const { role } = req.body
     const userRole = req.user.role
     try {
-      if (userRole === 'user') throw new ErrorHandle(401, "You don't have access")
-      await User.findOneAndUpdate({
-        _id: id
-      }, { role: role },
-      options
-      ).then(user => {
+      if (userRole === 'user')
+        throw new ErrorHandle(401, "You don't have access")
+      await User.findOneAndUpdate(
+        {
+          _id: id
+        },
+        { role: role },
+        options
+      ).then((user) => {
         if (!user) throw new ErrorHandle(404, 'Not found user')
 
-        res.status(200).json({ message: `the user email ${user.email} change to role ${user.role}` })
+        res
+          .status(200)
+          .json({
+            message: `the user email ${user.email} change to role ${user.role}`
+          })
       })
     } catch (error) {
       next(error)
@@ -71,12 +81,12 @@ const UserController = {
     const { role } = req.user
 
     try {
-      if (role === 'user' || role === 'seller') throw new ErrorHandle(401, "You don't have access")
-      await User.findByIdAndDelete(id)
-        .then(user => {
-          if (!user) throw new ErrorHandle(404, 'Not found user')
-          res.status(200).json({ message: 'Deleted user' })
-        })
+      if (role === 'user' || role === 'seller')
+        throw new ErrorHandle(401, "You don't have access")
+      await User.findByIdAndDelete(id).then((user) => {
+        if (!user) throw new ErrorHandle(404, 'Not found user')
+        res.status(200).json({ message: 'Deleted user' })
+      })
     } catch (error) {
       next(error)
     }
@@ -84,12 +94,14 @@ const UserController = {
   findUserById: async (req, res, next) => {
     const { id } = req.user
     try {
-      await User.findById(id).select('-password').then(user => {
-        if (!user) {
-          throw new ErrorHandle(404, 'Not found user')
-        }
-        res.status(200).json({ message: 'Profile', user })
-      })
+      await User.findById(id)
+        .select('-password')
+        .then((user) => {
+          if (!user) {
+            throw new ErrorHandle(404, 'Not found user')
+          }
+          res.status(200).json({ message: 'Profile', user })
+        })
     } catch (error) {
       next(error)
     }

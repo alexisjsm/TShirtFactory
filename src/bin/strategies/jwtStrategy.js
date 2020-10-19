@@ -7,12 +7,14 @@ opts.secretOrKey = process.env.KEY_SECRET_JWT
 
 export default new JwtStrategy(opts, (payload, done) => {
   const id = payload.sub
-  User.findById(id).select('-password').then(user => {
-    if (user === null) {
-      return done(null, false)
-    } else {
-      return done(null, user)
-    }
-  })
-    .catch(err => done(null, err))
+  User.findById(id)
+    .select('-password')
+    .then((user) => {
+      if (user === null) {
+        return done(null, false)
+      } else {
+        return done(null, user)
+      }
+    })
+    .catch((err) => done(null, err))
 })

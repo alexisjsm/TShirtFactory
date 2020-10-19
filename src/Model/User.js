@@ -42,27 +42,25 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'seller', 'admin'],
     default: 'user'
   }
-
 })
 
 userSchema.pre('save', async function (next) {
-  if(!this.isModified('password')) return next()
-  try{
-  const salt = await bcrypt.genSalt(10)
-  this.password = await bcrypt.hash(this.password, salt)
-  return next()
+  if (!this.isModified('password')) return next()
+  try {
+    const salt = await bcrypt.genSalt(10)
+    this.password = await bcrypt.hash(this.password, salt)
+    return next()
   } catch (error) {
     return next(error)
   }
 })
 
-
 userSchema.pre('findOneAndUpdate', async function (next) {
   if (!this._update.password) return next()
-  try{
-      const salt = await bcrypt.genSalt(10)
-      this._update.password = await bcrypt.hash(this._update.password, salt)
-      return next()
+  try {
+    const salt = await bcrypt.genSalt(10)
+    this._update.password = await bcrypt.hash(this._update.password, salt)
+    return next()
   } catch (error) {
     return next(error)
   }

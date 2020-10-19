@@ -1,4 +1,4 @@
-import server  from '../bin/server'
+import server from '../bin/server'
 import database from '../bin/database'
 import User from '../Model/User'
 import request from 'supertest'
@@ -16,20 +16,16 @@ describe('UserController', () => {
     userAdmin.save()
   })
   beforeEach(async () => {
-    const resAdmin = await request(server)
-      .post('/auth/login')
-      .send({
-        email: 'admin@gmail.com',
-        password: 'password'
-      })
+    const resAdmin = await request(server).post('/auth/login').send({
+      email: 'admin@gmail.com',
+      password: 'password'
+    })
     tokenAdmin = resAdmin.body.refresh_token
 
-    const res = await request(server)
-      .post('/auth/login')
-      .send({
-        email: 'frankroger@gmail.com',
-        password: 'password'
-      })
+    const res = await request(server).post('/auth/login').send({
+      email: 'frankroger@gmail.com',
+      password: 'password'
+    })
     token = res.body.refresh_token
   })
   afterAll(async () => {
@@ -48,17 +44,13 @@ describe('UserController', () => {
     }
 
     it('Debe de crear un un usuario', async () => {
-      const res = await request(server)
-        .post('/users/register')
-        .send(userCreate)
+      const res = await request(server).post('/users/register').send(userCreate)
 
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('User created')
     })
     it('Debe de lanzar un error al crear el usuario', async () => {
-      const res = await request(server)
-        .post('/users/register')
-        .send(userCreate)
+      const res = await request(server).post('/users/register').send(userCreate)
 
       expect(res.statusCode).toBe(409)
       expect(res.body.message).toBe('This user exists')
@@ -78,9 +70,7 @@ describe('UserController', () => {
         password: 'password'
       })
       await user.save()
-      const res = await request(server)
-      .post('/auth/login')
-      .send({
+      const res = await request(server).post('/auth/login').send({
         email: 'rogerjackson@gmail.com',
         password: 'password'
       })
@@ -90,7 +80,7 @@ describe('UserController', () => {
     it('Debe de modificar el nombre del usuario', async () => {
       const res = await request(server)
         .put('/users/change/')
-        .set('Authorization',userToken)
+        .set('Authorization', userToken)
         .send({
           name: 'Felix'
         })
@@ -106,13 +96,15 @@ describe('UserController', () => {
           role: 'seller'
         })
       expect(res.statusCode).toBe(200)
-      expect(res.body.message).toBe('the user email rogerjackson@gmail.com change to role seller')
+      expect(res.body.message).toBe(
+        'the user email rogerjackson@gmail.com change to role seller'
+      )
     })
 
     it('Debe de lanzar un error por email duplicado', async () => {
       const res = await request(server)
         .put('/users/change/')
-        .set('Authorization',userToken)
+        .set('Authorization', userToken)
         .send({
           email: 'frankroger@gmail.com'
         })
@@ -123,12 +115,14 @@ describe('UserController', () => {
     it('Debe de lanzar un error por conflicto de genero', async () => {
       const res = await request(server)
         .put('/users/change/')
-        .set('Authorization',userToken)
+        .set('Authorization', userToken)
         .send({
           genre: 'dog'
         })
       expect(res.statusCode).toBe(409)
-      expect(res.body.message).toBe('Validation failed: genre: `dog` is not a valid enum value for path `genre`.')
+      expect(res.body.message).toBe(
+        'Validation failed: genre: `dog` is not a valid enum value for path `genre`.'
+      )
     })
   })
 

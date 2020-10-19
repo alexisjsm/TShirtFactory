@@ -17,7 +17,12 @@ describe('ShoppingCart Controller', () => {
         description: 'it is a product one',
         categories: ['test', 'product'],
         price: 19.99,
-        items: ['5f7a036e2d206f932b45a28b', '5f7a037a2d206f932b45a28c', '5f7a03802d206f932b45a28d', '5f7a03872d206f932b45a28e']
+        items: [
+          '5f7a036e2d206f932b45a28b',
+          '5f7a037a2d206f932b45a28c',
+          '5f7a03802d206f932b45a28d',
+          '5f7a03872d206f932b45a28e'
+        ]
       },
       {
         _id: '5f7a07582d206f932b45a28f',
@@ -26,7 +31,12 @@ describe('ShoppingCart Controller', () => {
         description: 'it is a product two',
         categories: ['test', 'product'],
         price: 12.99,
-        items: ['5f7a07622d206f932b45a290', '5f7a07672d206f932b45a291', '5f7a076b2d206f932b45a292', '5f7a07702d206f932b45a293']
+        items: [
+          '5f7a07622d206f932b45a290',
+          '5f7a07672d206f932b45a291',
+          '5f7a076b2d206f932b45a292',
+          '5f7a07702d206f932b45a293'
+        ]
       }
     ])
     await Item.insertMany([
@@ -37,7 +47,6 @@ describe('ShoppingCart Controller', () => {
         color: 'Rojo',
         size: 'S',
         product: '5f7a02ca2d206f932b45a28a'
-
       },
       {
         _id: '5f7a037a2d206f932b45a28c',
@@ -46,7 +55,6 @@ describe('ShoppingCart Controller', () => {
         stock: 10,
         size: 'M',
         product: '5f7a02ca2d206f932b45a28a'
-
       },
       {
         _id: '5f7a03802d206f932b45a28d',
@@ -55,7 +63,6 @@ describe('ShoppingCart Controller', () => {
         stock: 20,
         size: 'M',
         product: '5f7a02ca2d206f932b45a28a'
-
       },
       {
         _id: '5f7a03872d206f932b45a28e',
@@ -101,25 +108,23 @@ describe('ShoppingCart Controller', () => {
 
   describe('ADD', () => {
     test('Debe de añadir un producto a la cesta', async () => {
-      const res = await request(server)
-        .post('/cart/add')
-        .send({
-          productId: '5f7a02ca2d206f932b45a28a',
-          itemId: '5f7a036e2d206f932b45a28b'
-        })
+      const res = await request(server).post('/cart/add').send({
+        productId: '5f7a02ca2d206f932b45a28a',
+        itemId: '5f7a036e2d206f932b45a28b'
+      })
       cartId = res.body.cart._id
       expect(res.statusCode).toBe(201)
       expect(res.body.message).toBe('Product in cart')
     })
     test('Debe de añadir otro articulo del mismo producto a la cesta', async () => {
-      const res = await request(server)
-        .patch(`/cart/push/${cartId}`)
-        .send({
-          productId: '5f7a02ca2d206f932b45a28a',
-          itemId: '5f7a03872d206f932b45a28e',
-          quantity: 2
-        })
-      subcartId = res.body.cart.products.find(value => value.itemId === '5f7a03872d206f932b45a28e' ? value._id : null)
+      const res = await request(server).patch(`/cart/push/${cartId}`).send({
+        productId: '5f7a02ca2d206f932b45a28a',
+        itemId: '5f7a03872d206f932b45a28e',
+        quantity: 2
+      })
+      subcartId = res.body.cart.products.find((value) =>
+        value.itemId === '5f7a03872d206f932b45a28e' ? value._id : null
+      )
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Add cart')
       expect(res.body.cart).toMatchObject({
@@ -127,13 +132,11 @@ describe('ShoppingCart Controller', () => {
       })
     })
     test('Debe de añadir otro product a la cesta', async () => {
-      const res = await request(server)
-        .patch(`/cart/push/${cartId}`)
-        .send({
-          productId: '5f7a07582d206f932b45a28f',
-          itemId: '5f7a07672d206f932b45a291',
-          quantity: 1
-        })
+      const res = await request(server).patch(`/cart/push/${cartId}`).send({
+        productId: '5f7a07582d206f932b45a28f',
+        itemId: '5f7a07672d206f932b45a291',
+        quantity: 1
+      })
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Add cart')
       expect(res.body.cart).toMatchObject({
@@ -141,11 +144,9 @@ describe('ShoppingCart Controller', () => {
       })
     })
     test('Debe de eliminar un producto de la cesta', async () => {
-      const res = await request(server)
-        .patch(`/cart/pull/${cartId}`)
-        .send({
-          subcartId
-        })
+      const res = await request(server).patch(`/cart/pull/${cartId}`).send({
+        subcartId
+      })
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('removed item on cart')
       expect(res.body.cart).toMatchObject({
@@ -154,12 +155,10 @@ describe('ShoppingCart Controller', () => {
     })
 
     test('Debe de lanzar un error al añadir un product si el articulo no existe', async () => {
-      const res = await request(server)
-        .post('/cart/add/')
-        .send({
-          productId: '5f7a07582d206f932b45a28f',
-          itemId: '5f7a07702d206f932b45a293'
-        })
+      const res = await request(server).post('/cart/add/').send({
+        productId: '5f7a07582d206f932b45a28f',
+        itemId: '5f7a07702d206f932b45a293'
+      })
       expect(res.statusCode).toBe(404)
       expect(res.body.message).toBe('Not found item')
     })
@@ -167,8 +166,7 @@ describe('ShoppingCart Controller', () => {
 
   describe('FIND', () => {
     test('Debe de devolver la cesta', async () => {
-      const res = await request(server)
-        .get(`/cart/${cartId}`)
+      const res = await request(server).get(`/cart/${cartId}`)
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Find cart')
     })
@@ -176,15 +174,13 @@ describe('ShoppingCart Controller', () => {
 
   describe('DELETE', () => {
     test('Debe eliminar la cesta', async () => {
-      const res = await request(server)
-        .delete(`/cart/remove/${cartId}`)
+      const res = await request(server).delete(`/cart/remove/${cartId}`)
       expect(res.statusCode).toBe(200)
       expect(res.body.message).toBe('Removed cart')
     })
 
     test('Debe de lanzar un error al intentar eliminar una lista', async () => {
-      const res = await request(server)
-        .delete(`/cart/remove/${cartId}`)
+      const res = await request(server).delete(`/cart/remove/${cartId}`)
       expect(res.statusCode).toBe(404)
       expect(res.body.message).toBe('Not found cart')
     })

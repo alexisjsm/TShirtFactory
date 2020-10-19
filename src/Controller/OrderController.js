@@ -5,34 +5,40 @@ import ShoppingCart from '../Model/ShoppingCart'
 import User from '../Model/User'
 
 const OrderController = {
-
   register: async (req, res, next) => {
     const { id: userId, role } = req.user
     const { cartId } = req.params
     try {
       if (role !== 'user') throw new ErrorHandle(401, "You don't have access ")
-      const cart = await ShoppingCart.findById(cartId).populate('products.productId').populate('products.itemId')
-        .then(cart => {
+      const cart = await ShoppingCart.findById(cartId)
+        .populate('products.productId')
+        .populate('products.itemId')
+        .then((cart) => {
           if (!cart) throw new ErrorHandle(404, 'Not found cart')
           return cart
         })
 
       const { total_price: amount } = cart
 
-      const products = cart.products.map(el => {
+      const products = cart.products.map((el) => {
         const { productId: product, itemId: item, quantity, subtotal } = el
-        const { parent_sku, title, description, price } = product
-        const { _id, child_sku, stock, color, size } = item
+        const { parent_sku: parentSku, title, description, price } = product
+        const { _id, child_sku: childSku, stock, color, size } = item
 
-        const newStock = Item.findByIdAndUpdate(_id,
+        Item.findByIdAndUpdate(
+          _id,
           {
             stock: stock - quantity
-          }, { new: true })
-          .then(item => item.stock)
-          .catch((err) => { throw new ErrorHandle(400, err) })
+          },
+          { new: true }
+        )
+          .then((item) => item.stock)
+          .catch((err) => {
+            throw new ErrorHandle(400, err)
+          })
 
         const object = {
-          reference: `${parent_sku}-${child_sku}`,
+          reference: `${parentSku}-${childSku}`,
           title,
           description,
           color,
@@ -46,19 +52,22 @@ const OrderController = {
       const orderObj = { userId, status: 'process', products, amount }
 
       const order = await Order.create(orderObj)
-        .then(order => {
+        .then((order) => {
           if (!order) throw new ErrorHandle(503, 'Something is wrong in Server')
           return order
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.statusCode) next(error)
           throw new ErrorHandle(400, error)
         })
-      const user = await User.findByIdAndUpdate(userId, { $push: { order: order.id } }).then(user => {
+      const user = await User.findByIdAndUpdate(userId, {
+        $push: { order: order.id }
+      }).then((user) => {
         if (!user) throw new ErrorHandle(404, 'Not found user')
         return user
       })
-      if (order && user) res.status(200).json({ message: 'Order proccess', order })
+      if (order && user)
+        res.status(200).json({ message: 'Order proccess', order })
     } catch (error) {
       next(error)
     }
@@ -71,12 +80,20 @@ const OrderController = {
     try {
       if (role === 'user') throw new ErrorHandle(401, "You don't have access")
 
-      await Order.findOneAndUpdate({ _id: orderId }, { status }, { new: true, runValidators: true })
-        .then(order => {
+      await Order.findOneAndUpdate(
+        { _id: orderId },
+        { status },
+        { new: true, runValidators: true }
+      )
+        .then((order) => {
           if (!order) throw new ErrorHandle(404, 'Not found order')
-          res.status(200).json({ message: 'Order updated', status: order.status, orderId: order.id })
+          res.status(200).json({
+            message: 'Order updated',
+            status: order.status,
+            orderId: order.id
+          })
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.statusCode) next(error)
           throw new ErrorHandle(400, error)
         })
@@ -84,7 +101,6 @@ const OrderController = {
       next(error)
     }
   }
-
 }
 
 export default OrderController

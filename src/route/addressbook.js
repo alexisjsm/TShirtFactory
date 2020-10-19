@@ -4,12 +4,28 @@ import AddressBookController from '../Controller/AddressBookController'
 
 const route = Router()
 
-route.get('/', passport.authenticate('jwt', {session: false}), AddressBookController.getAddress)
+route.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  AddressBookController.getAddress
+)
 
-route.post('/register/', passport.authenticate('jwt', { session: false }), AddressBookController.register)
+route.post(
+  '/register/',
+  passport.authenticate('jwt', { session: false }),
+  AddressBookController.register
+)
 
-route.put('/update/:id', passport.authenticate('jwt', { session: false }), AddressBookController.update)
+route.put(
+  '/update/:id',
+  passport.authenticate('jwt', { session: false }),
+  AddressBookController.update
+)
 
-route.delete('/remove/:id', passport.authenticate('jwt', { session: false }), AddressBookController.remove)
+route.delete(
+  '/remove/:id',
+  passport.authenticate('jwt', { session: false }),
+  AddressBookController.remove
+)
 
 export default route

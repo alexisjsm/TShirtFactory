@@ -22,11 +22,13 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParse())
 
-app.use(session({
-  secret: process.env.KEY_SECRET_SESSION,
-  resave: false,
-  saveUninitialized: false
-}))
+app.use(
+  session({
+    secret: process.env.KEY_SECRET_SESSION,
+    resave: false,
+    saveUninitialized: false
+  })
+)
 
 /* passport configure */
 passport.use('jwt', jwtStrategy)

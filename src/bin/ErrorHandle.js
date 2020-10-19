@@ -23,12 +23,8 @@ const handleError = (err, res, next) => {
         message: 'duplicate key error collection',
         keyValue
       })
-      break
   }
   next()
 }
 
-export {
-  ErrorHandle,
-  handleError
-}
+export { ErrorHandle, handleError }

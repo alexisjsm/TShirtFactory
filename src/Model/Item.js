@@ -1,7 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
 const ItemSchema = new mongoose.Schema({
-
   child_sku: {
     type: String,
     required: true,
