@@ -1,21 +1,24 @@
 import mongoose, { Schema } from 'mongoose'
 
-const OrderSchema  = new mongoose.Schema({
+const OrderSchema = new mongoose.Schema({
 
   UserId: {
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
-
+  status: {
+    type: String,
+    enum: ['process', 'confirm', 'paid', 'shipping', 'canceled'],
+    required: true
+  },
   products: [{
     reference: {
       type: String,
-      unique: true,
-      required: true,
+      required: true
     },
     title: {
       type: String,
-      required: true,
+      required: true
     },
     description: {
       type: String,
@@ -33,13 +36,16 @@ const OrderSchema  = new mongoose.Schema({
       type: Number,
       required: true
     },
+    price: {
+      type: Schema.Types.Decimal128,
+      required: true
+    },
     subtotal: {
       type: Schema.Types.Decimal128,
       required: true
     }
   }],
-  
-  total_price: {
+  amount: {
     type: Schema.Types.Decimal128,
     required: true
   }

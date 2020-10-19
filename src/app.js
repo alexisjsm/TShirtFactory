@@ -9,6 +9,7 @@ import routerProduct from './route/products'
 import routerCart from './route/cart'
 import routerAddressBook from './route/addressbook'
 import routerWallet from './route/wallet'
+import routerOrder from './route/order'
 
 import passport from 'passport'
 import jwtStrategy from './bin/strategies/jwtStrategy'
@@ -39,6 +40,7 @@ app.use('/auth', routerAuth)
 app.use('/cart', routerCart)
 app.use('/addressbook', routerAddressBook)
 app.use('/wallet/', routerWallet)
+app.use('/order/', routerOrder)
 
 /* Handle Error */
 app.use((err, req, res, next) => {
