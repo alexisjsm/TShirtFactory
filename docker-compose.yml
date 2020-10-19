@@ -11,7 +11,23 @@ services:
     volumes:
       - ./mongoUser.js:/docker-entrypoint-initdb.d/mongoUser.js:ro
       - ./mongo-volume:/data/db
+    env_file:
+     - .env 
     ports:
       - 27017:27017
-volumes:
-  mongo-volume:
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    environment: 
+      ME_CONFIG_MONGODB_SERVER: MongoDB
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: mongoexpress
+    depends_on:
+      - "db"
+    ports:
+    - 8081:8081
+
