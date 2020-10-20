@@ -10,7 +10,7 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: ['jest', '@babel'],
-  rules: { 
-    
+  rules: {
+    'space-before-function-paren': 'off'
   }
 }
