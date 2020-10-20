@@ -5,6 +5,7 @@
   "scripts": {
     "build": "babel src -d dist",
     "dev": "nodemon --exec babel-node -r dotenv/config src/bin/server.js",
+    "seeder": "babel-node -r dotenv/config src/bin/seeders/seeder.js",
     "lint": " eslint 'src/**/*.js'",
     "formatter": "prettier --check 'src/**/*.js' &  prettier --write 'src/**/*.js'",
     "test": "jest  --detectOpenHandles",
@@ -35,6 +36,7 @@
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.5",
     "babel-jest": "^26.3.0",
+    "commander": "^6.1.0",
     "dotenv": "^8.2.0",
     "eslint": "^7.11.0",
     "eslint-config-prettier": "^6.13.0",
