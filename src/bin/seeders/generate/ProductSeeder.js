@@ -3,39 +3,42 @@ import mongoose from 'mongoose'
 import Item from '../../../Model/Item'
 import Product from '../../../Model/Product'
 
-const products = [...Array(10)].map((el) => ({
-  parent_sku: faker.random.alphaNumeric(4),
-  title: faker.commerce.productName(),
-  description: faker.commerce.productDescription(),
-  price: faker.commerce.price(),
-  items: [...Array(5)].map(() => new mongoose.Types.ObjectId()),
-  categories: [...Array(2)].map(() => faker.commerce.productAdjective())
-}))
-
-const items = [...Array(10)].map((el) => ({
-  item: [...Array(5)].map(() => ({
-    child_sku: faker.random.alphaNumeric(4),
-    stock: faker.random.number(99),
-    color: faker.commerce.color(),
-    size: faker.random.arrayElement(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'])
-  }))
-}))
-
 class ProductSeeder {
+  constructor () {
+    this.products = [...Array(10)].map((el) => ({
+      parent_sku: faker.random.alphaNumeric(4),
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      price: faker.commerce.price(),
+      items: [...Array(5)].map(() => new mongoose.Types.ObjectId()),
+      categories: [...Array(2)].map(() => faker.commerce.productAdjective())
+    }))
+    this.items = [...Array(10)].map((el) => ({
+      item: [...Array(5)].map(() => ({
+        child_sku: faker.random.alphaNumeric(4),
+        stock: faker.random.number(99),
+        color: faker.commerce.color(),
+        size: faker.random.arrayElement(['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXL'])
+      }))
+    }))
+  }
+
   async createProducts() {
     console.log('Generate: products')
-    const product = await Product.create(products).then((product) => product)
+    const product = await Product.create(this.products).then((product) => product)
     console.log('injected: Products')
     console.log('Generate: items')
-    items.map((el, i) => {
+    this.items.map((el, i) => {
       el.item.map((val, index) => {
         val._id = product[i].items[index]
         val.product = product[i]._id
       })
     })
-    items.forEach((element) => {
+    this.items.forEach((element) => {
       element.item.forEach(async (el) => {
-        await Item.create(el).then((item) => {})
+        await Item.create(el).then((item) => {
+          return item
+        })
       })
     })
     console.log('injected: items')
@@ -43,11 +46,15 @@ class ProductSeeder {
 
   async dropProducts() {
     await Product.deleteMany().then((products) => {
-      if (products) console.log('drop: Products')
+      console.log('drop: Products')
+      return products
     })
+    .catch(error => console.log(error))
     await Item.deleteMany().then((item) => {
-      if (item) console.log('drop: Item')
+      console.log('drop: Item')
+      return item
     })
+    .catch(error => console.log(error))
   }
 }
 

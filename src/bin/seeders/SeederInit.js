@@ -12,11 +12,17 @@ class SeederInit {
   async charge() {
     await new UserSeeder().createUsers()
     await new ProductSeeder().createProducts()
+    await database.close(err => {
+      throw new Error(err)
+    })
   }
 
   async drop() {
     await new UserSeeder().dropUsers()
     await new ProductSeeder().dropProducts()
+    await database.close(err => {
+      throw new Error(err)
+    })
   }
 }
 

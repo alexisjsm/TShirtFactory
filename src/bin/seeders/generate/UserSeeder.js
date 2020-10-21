@@ -3,56 +3,63 @@ import AddressBook from '../../../Model/Addressbook'
 import User from '../../../Model/User'
 import Wallet from '../../../Model/Wallet'
 
-const users = [...Array(2)].map((el) => ({
-  name: faker.name.firstName(),
-  lastname: faker.name.lastName(),
-  email: faker.internet.email(),
-  password: 'password',
-  genre: faker.random.arrayElement(['man', 'woman', 'unknown'])
-}))
-
-const addresses = [...Array(2)].map((el) => ({
-  name: faker.name.findName(),
-  lastname: faker.name.lastName(),
-  country: faker.address.country(),
-  location: faker.address.county(),
-  state: faker.address.state(),
-  postcode: faker.address.zipCode('#####'),
-  mobile: faker.phone.phoneNumber('#########'),
-  isDefault: false
-}))
-
-const wallets = [...Array(2)].map((el) => ({
-  creditCard: {
-    type: faker.random.arrayElement(['credit', 'debit']),
-    cardNumber: '5555 5555 5555 5555',
-    valid: {
-      month: faker.random.number({ min: 1, max: 12 }),
-      year: faker.random.number({ min: 0, max: 99 })
-    },
-    balance: faker.finance.amount()
-  }
-}))
-
 class UserSeeder {
+
+  constructor () {
+    this.users = [...Array(2)].map((el) => ({
+      name: faker.name.firstName(),
+      lastname: faker.name.lastName(),
+      email: faker.internet.email(),
+      password: 'password',
+      genre: faker.random.arrayElement(['man', 'woman', 'unknown'])
+    }))
+
+    this.addresses = [...Array(2)].map((el) => ({
+      name: faker.name.findName(),
+      lastname: faker.name.lastName(),
+      country: faker.address.country(),
+      location: faker.address.county(),
+      state: faker.address.state(),
+      postcode: faker.address.zipCode('#####'),
+      mobile: faker.phone.phoneNumber('#########'),
+      isDefault: false
+    }))
+    this.wallets = [...Array(2)].map((el) => ({
+      creditCard: {
+        type: faker.random.arrayElement(['credit', 'debit']),
+        cardNumber: '5555 5555 5555 5555',
+        valid: {
+          month: faker.random.number({ min: 1, max: 12 }),
+          year: faker.random.number({ min: 0, max: 99 })
+        },
+        balance: faker.finance.amount()
+      }
+    }))
+  }
+
   async createUsers() {
-    console.log('Generate: Users')
-    const user = await User.create(users).then((user) => user)
+    const user = await User.create(this.users).then((user) => {
+      console.log('Generate: Users')
+      return user
+    })
     console.log('Generate: Address')
-    addresses.map((el, index) => {
+    this.addresses.map((el, index) => {
       el.userId = user[index].id
     })
-    console.log('Generate Wallet')
-    wallets.map((el, index) => {
+    console.log('Generate: Wallet')
+    this.wallets.map((el, index) => {
       el.creditCard.title = `${user[index].name} ${user[index].lastname}`
       el.userId = user[index].id
     })
-    console.log('Injected: Address')
-    const address = await AddressBook.create(addresses).then(
-      (address) => address
-    )
-    console.log('Injected: Wallet')
-    const wallet = await Wallet.create(wallets).then((wallet) => wallet)
+    const address = await AddressBook.create(this.addresses).then(
+      (address) => {
+        console.log('Injected: Address')
+        return address
+      })
+    const wallet = await Wallet.create(this.wallets).then((wallet) => {
+      console.log('Injected: Wallet')
+      return wallet
+    })
 
     await user.forEach(async (el, index) => {
       await User.updateOne(
@@ -65,14 +72,17 @@ class UserSeeder {
 
   async dropUsers() {
     await User.deleteMany().then((user) => {
-      if (user) console.log('Drop: User')
+      console.log('Drop: User')
+      return user
     })
     await AddressBook.deleteMany().then((address) => {
-      if (address) console.log('Drop: AddressBook')
+      console.log('Drop: Address')
+      return address
     })
 
     await Wallet.deleteMany().then((wallet) => {
-      if (wallet) console.log('Drop: Wallet')
+      console.log('Drop: Wallet')
+      return wallet
     })
   }
 }
