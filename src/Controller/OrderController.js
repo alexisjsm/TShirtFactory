@@ -100,7 +100,49 @@ const OrderController = {
     } catch (error) {
       next(error)
     }
+  },
+  canceledUpdate: async (req, res, next) => {
+    const {role } = req.user
+    try {
+      if(role === 'user') throw new ErrorHandle(401, "You don't have access")
+
+      const orders = await Order.find({status: {$eq: 'canceled'}}).then(orders => {
+        if (!orders) throw new ErrorHandle('404', 'Not found orders with canceled status')
+        return orders
+      })
+      .catch(err => err)
+      const products = orders.flatMap(el => el.products)
+
+      const productsRefound = products.map(el => {
+        const reference = el.reference
+        const childSku = reference.split('-')
+        return {
+          child_sku: childSku[1],
+          quantity: el.quantity
+        }
+      })
+      const items = []
+      productsRefound.forEach(async (val, index, products) => {        
+        const item = await Item.findOne({child_sku: val.child_sku})
+        .then(item => {
+           if (!item) console.error('No found reference Item')
+           return item
+        })
+        .then(async item => {
+          const {stock } = item
+          return await Item.updateOne({child_sku: val.child_sku},{stock: stock + val.quantity }).then(item => item)
+        })
+        .catch(error => {
+          throw new ErrorHandle(400, error)
+        })
+        items.push(item)
+        if (index === products.length - 1) res.status(200).json({item: items})
+      })
+    } catch (error) {
+      next(error)
+    }
   }
+  
 }
 
 export default OrderController

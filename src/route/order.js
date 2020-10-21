@@ -15,4 +15,6 @@ route.patch(
   OrderController.updateStatus
 )
 
+route.put('/update/canceled', passport.authenticate('jwt', {session: false}), OrderController.canceledUpdate)
+
 export default route

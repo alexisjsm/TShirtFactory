@@ -25,23 +25,23 @@ class ProductSeeder {
 
   async createProducts() {
     console.log('Generate: products')
-    const product = await Product.create(this.products).then((product) => product)
-    console.log('injected: Products')
+    const product = await Product.create(this.products).then((product) => {
+      console.log('injected: Products')
+      return product
+    })
     console.log('Generate: items')
     this.items.map((el, i) => {
-      el.item.map((val, index) => {
+       el.item.map((val, index) => {
         val._id = product[i].items[index]
         val.product = product[i]._id
       })
     })
-    this.items.forEach((element) => {
-      element.item.forEach(async (el) => {
-        await Item.create(el).then((item) => {
-          return item
-        })
-      })
+
+    this.items = this.items.flatMap(val => val.item)
+    await Item.create(this.items).then(items => {
+      console.log('injected: items')
+      return items
     })
-    console.log('injected: items')
   }
 
   async dropProducts() {
