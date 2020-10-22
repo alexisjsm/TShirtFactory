@@ -15,6 +15,11 @@
   },
   "author": "alexisjsm",
   "license": "MIT",
+  "url" : "https://github.com/alexisjsm/TShirtFactory/issues",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/alexisjsm/TShirtFactory.git"
+  },
   "dependencies": {
     "@types/jest": "^26.0.14",
     "bcrypt": "^5.0.0",
