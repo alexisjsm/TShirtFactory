@@ -70,7 +70,7 @@ __descripción__: registrar un usuario con role por defecto `user`
      "name": nombre del usuario 
     "lastname": apellido del usuario
     "email": "", correo electronico 
-    "genre": "", el genero debe ser [man, woman, unknown]
+    "genre": "", el genero debe ser (man, woman, unknown)
     "password":  constrasña del usuario
  */
 {
@@ -140,12 +140,12 @@ __solo__: `admin`
 
 __requiere__: `TOKEN`
 
-__descripción__: puede cambiar el rol a `[admin,user, seller`]
+__descripción__: puede cambiar el rol a [`admin`,`user`, `seller`]
  
 ```json
 /*
 request
-  "role": "" puede ser [user, admin, seller ]
+  "role": "" puede ser (user, admin, seller)
 */
 {
   "role": "" 
@@ -388,7 +388,7 @@ __descripción__: registramos una dirección
 /*
 request
 
-"isDefault": solo permite dos estados [false, true]
+"isDefault": solo permite dos estados ([false, true])
 */
 {
     "name": "",
@@ -437,9 +437,10 @@ request
 }
 ``` 
 
-```json 
+```json
+// response
 {
-  // response
+  
     "message": "Updated add",
     "address": {}
 }
@@ -684,7 +685,7 @@ __descripción__:  actualiza el estado del pedido
 ```json
 /*
  request
-    "status": los estados permitidos son [process, confirm, paid, shipping, finished,canceled]
+    "status": los estados permitidos son (process, confirm, paid, shipping, finished,canceled)
 */
 {
     "status": "" 
