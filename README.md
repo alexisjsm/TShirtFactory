@@ -65,13 +65,20 @@ __[POST]__ __register__:  `/users/register`
 __descripción__: registrar un usuario con role por defecto `user`
 
 ```json
-// request
+/* request
+ 
+     "name": nombre del usuario 
+    "lastname": apellido del usuario
+    "email": "", correo electronico 
+    "genre": "", el genero debe ser ['man', 'woman', 'unknown']
+    "password":  constrasña del usuario
+ */
 {
-    "name": "", //  nombre del usuario 
-    "lastname": "", // apellido del usuario
-    "email": "", // correo electronico 
-    "genre": "", // el genero debe ser ['man', 'woman', 'unknown']
-    "password": "" // constrasña del usuario
+    "name": "", 
+    "lastname": "", 
+    "email": "",  
+    "genre": "",
+    "password": "" 
 }
 ```
 
@@ -136,9 +143,12 @@ __requiere__: `TOKEN`
 __descripción__: puede cambiar el rol a `['admin','user', 'seller'`]
  
 ```json
-//request
+/*
+request
+  "role": "" puede ser ['user', 'admin', 'seller' ]
+*/
 {
-  "role": "" // puede ser ['user', 'admin', 'seller' ]
+  "role": "" 
 }
 ```
 
@@ -176,18 +186,23 @@ __descripción__: autentificación  de usuario
 
 
 ```json
-// request
+/*
+    "email": correo electronico 
+    "password": constrasña del usuario
+*/
 {
-    "email": "", // correo electronico 
-    "password": "" // constrasña del usuario
+    "email": "",
+    "password": ""
 }
 ```
 
 ```json
-// response
+/* response
+refresh_token": token
+*/
 {
     "message": "Login Success",
-    "refresh_token": "" // token
+    "refresh_token": "" 
 }
 ```
 
@@ -240,7 +255,7 @@ __descripción__: registro de productos
 }
 ```
 
-```JSON
+```json
 // response
 {
     "message": "Product saved {PARENT_SKU}"
@@ -288,9 +303,11 @@ __require__: `TOKEN`
 __descripción__: elimina products y sus items
 
 ```json
-// request
+/* request
+"products": ["productsId"]
+*/
 {
-    "products": [] // productsId
+    "products": [] 
 }
 ```
 
@@ -353,7 +370,7 @@ __requiere__: `TOKEN`
 
 __descripción__: obtenemos todas la direcciones del usuario
 
-```JSON
+```json
 {
     "message": "All addresses",
     "addresses": []
@@ -368,7 +385,11 @@ __requiere__: `TOKEN`
 __descripción__: registramos una dirección 
 
 ```json
-//request
+/*
+request
+
+"isDefault": solo permite dos estados ['false', 'true']
+*/
 {
     "name": "",
     "lastname": "",
@@ -378,7 +399,7 @@ __descripción__: registramos una dirección
     "postcode": "",
     "telephone": "",
     "mobile": "",
-    "isDefault": false // solo permite dos estados ['false', 'true']
+    "isDefault": false 
 }
 ``` 
 
@@ -398,7 +419,10 @@ __require__: `TOKEN`
 __descripción__: actualizamos la dirección 
 
 ```json
-//request
+/*
+request
+   "isDefault": solo permite dos estados ['false', 'true']
+*/
 {
     "name": "",
     "lastname": "",
@@ -408,7 +432,7 @@ __descripción__: actualizamos la dirección
     "postcode": "",
     "telephone": "",
     "mobile": "",
-    "isDefault": false // solo permite dos estados ['false', 'true']
+    "isDefault": false 
 }
 ``` 
 
@@ -430,6 +454,7 @@ __require__: `TOKEN`
 __descripción__: eliminamos la dirección 
 
 ```json
+// response
 {
     "message": "Remove address"
 }
@@ -446,7 +471,8 @@ __requiere__: `TOKEN`
 __description__: obtenemos todos los wallet del usuarios
 
 
-```JSON
+```json
+//response
 {
     "message": "Wallet",
     "wallet": []
@@ -500,7 +526,7 @@ __[PUT]__  __update__: `wallet/update/:walletId`
 __params__: `walletId`
 __require__: TOKEN 
 __descripción__: actualizamos la tarjeta
-```JSON
+```json
 //request
     {
         "title": "Maria Rodriguez Lopez",
@@ -511,7 +537,7 @@ __descripción__: actualizamos la tarjeta
         "balance": 20.99
     }
 ```
-```JSON
+```json
 // response
 {
     "message": "updated credit card",
@@ -532,7 +558,7 @@ __params__: `walletId`
 __requiere__: `TOKEN`
 __descripción__: elimina un tarjeta 
 
-```JSON
+```json
 // response
 {
     "message": "Removed credit card"
@@ -548,7 +574,7 @@ __[GET]__ __/__: `/addressbook/:cartId`
 __params__: `{cartId}`
 __descripción__: obtenemos el pedido
 
-```JSON
+```json
 //response
 {
     "message": "Find cart",
@@ -559,7 +585,7 @@ __descripción__: obtenemos el pedido
 __[POST]__  __add__ : `/cart/add` 
 __descripción__:  añade los productos seleccionados al carrito
 
-```JSON
+```json
 // request
 {
     "productId": "",
@@ -580,12 +606,15 @@ __[PATCH]__  __push__ : `/cart/push/:cartId`
 __params__: `cartId`
 __descripción__:  añade un producto a la cesta ya creado o lo actualiza en caso que sea el mismo.
 
-```JSON
-// request
+```json
+/* request
+    "quantity":  no se permite 0, pasa directamente a 1. para quitarlo del carrito existe el enpoint Pull
+
+*/
 {
     "productId": "",
     "itemId": "",
-    "quantity":  // no se permite 0, pasa directamente a 1. para quitarlo del carrito existe el enpoint Pull
+    "quantity": 
 }
 ```
 
@@ -602,9 +631,12 @@ __params__: `cartId`
 __descripción__: borra un producto de la cesta
 
 ``` json
-//request
+/*
+request
+ "subcartId": se require el id subdocument 
+*/
 {
-    "subcartId": "" // se require el id subdocument 
+    "subcartId": "" 
 }
 
 ```
@@ -635,7 +667,7 @@ __[POST]__ __register__: `/order/register/:cartId`
 __params__: `cartId`
 __require__: `TOKEN`
 __descripción__: registra un pedido  
-```JSON
+```json
 //response
 {
     "message": "Order proccess",
@@ -649,17 +681,34 @@ __require__: `TOKEN`
 __descripción__:  actualiza el estado del pedido
 
 ```json
+/*
+ request
+    "status": los estados permitidos son ['process', 'confirm', 'paid', 'shipping', 'finished','canceled']
+*/
 {
     "status": "" // los estados permitidos son ['process', 'confirm', 'paid', 'shipping', 'finished','canceled']
 }
 ```
+
+```json
+/*
+ response
+*/
+{
+    "message": "Order updated",
+    "status": "confirm",
+    "orderId": "5f91a722e7d57aaae96bdd86"
+}
+```
+
+
 
 __[PUT]__ __status canceled__: `/order/update/canceled/`
 __solo__: `admin`
 __params__: `cartId`
 __descripción__: busca todo los pedidos con estado `canceled` y devuelve el stock
 
-```JSON
+```json
 // response
 {
     "item": [
@@ -682,14 +731,17 @@ __require__: `TOKEN` y una dirreción con estado `isDefault: true`
 __descripción__: registra un pedido para su envio
 
 
-```JSON
+```json
 {
-    "invoce_address": "" // opcional: si se desea otra direccion para la facturación
+    /*
+    "invoce_address":  opcional: si se desea otra direccion para la facturación
+    */
+    "invoce_address": "" 
 }
 
 ```
 
-```JSON
+```json
 {
     "message": "Order pedding for shipping",
     "shipping": {
@@ -715,14 +767,14 @@ __descripción__:actualiza el envio dependiendo del estado del pedido:
     - [`'shipped out'`, `'pending delivered'`]
 - Si el pedido se encuentra en estado `finished` podemos introducir los estados:
     - [`'delivered'`, `'undelivered'`]
-```JSON
+```json
 // request
 {
     "status": "" 
 
 }
 ```
-```JSON
+```json
 {
 //response 
     "message": "shipping change",
@@ -742,7 +794,7 @@ __[POST]__ __/__: `/shipping/:shippingId`
 __params__: `shippingId`
 __require__: `TOKEN`
 __descripción__: obtenemos los datos del envio y el pedido
-```JSON
+```json
 //response 
 {
     {
