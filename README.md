@@ -70,7 +70,7 @@ __descripción__: registrar un usuario con role por defecto `user`
      "name": nombre del usuario 
     "lastname": apellido del usuario
     "email": "", correo electronico 
-    "genre": "", el genero debe ser ['man', 'woman', 'unknown']
+    "genre": "", el genero debe ser [man, woman, unknown]
     "password":  constrasña del usuario
  */
 {
@@ -140,12 +140,12 @@ __solo__: `admin`
 
 __requiere__: `TOKEN`
 
-__descripción__: puede cambiar el rol a `['admin','user', 'seller'`]
+__descripción__: puede cambiar el rol a `[admin,user, seller`]
  
 ```json
 /*
 request
-  "role": "" puede ser ['user', 'admin', 'seller' ]
+  "role": "" puede ser [user, admin, seller ]
 */
 {
   "role": "" 
@@ -344,7 +344,7 @@ __descripción__: eliminar item
 ```
 
 ```json
-
+//response 
 {
     "message": "Removed item on product",
     "item": {
@@ -388,7 +388,7 @@ __descripción__: registramos una dirección
 /*
 request
 
-"isDefault": solo permite dos estados ['false', 'true']
+"isDefault": solo permite dos estados [false, true]
 */
 {
     "name": "",
@@ -405,8 +405,9 @@ request
 
 
 ```json 
-{
   // response
+
+{
     "message": "Address add",
     "address": {}
 }
@@ -421,7 +422,7 @@ __descripción__: actualizamos la dirección
 ```json
 /*
 request
-   "isDefault": solo permite dos estados ['false', 'true']
+   "isDefault": solo permite dos estados [false, true]
 */
 {
     "name": "",
@@ -558,8 +559,8 @@ __params__: `walletId`
 __requiere__: `TOKEN`
 __descripción__: elimina un tarjeta 
 
-```json
 // response
+```json
 {
     "message": "Removed credit card"
 }
@@ -594,8 +595,8 @@ __descripción__:  añade los productos seleccionados al carrito
 ```
 
 ```json
-{
   //response 
+{
     "message": "Product in cart",
     "cart": {}
   
@@ -619,8 +620,8 @@ __descripción__:  añade un producto a la cesta ya creado o lo actualiza en cas
 ```
 
 ```json
-{
   //response 
+{
     "message": "Product in cart",
     "cart": {}
   
@@ -683,10 +684,10 @@ __descripción__:  actualiza el estado del pedido
 ```json
 /*
  request
-    "status": los estados permitidos son ['process', 'confirm', 'paid', 'shipping', 'finished','canceled']
+    "status": los estados permitidos son [process, confirm, paid, shipping, finished,canceled]
 */
 {
-    "status": "" // los estados permitidos son ['process', 'confirm', 'paid', 'shipping', 'finished','canceled']
+    "status": "" 
 }
 ```
 
@@ -732,10 +733,10 @@ __descripción__: registra un pedido para su envio
 
 
 ```json
-{
     /*
     "invoce_address":  opcional: si se desea otra direccion para la facturación
     */
+{
     "invoce_address": "" 
 }
 
@@ -764,9 +765,9 @@ __require__: `TOKEN`
 __descripción__:actualiza el envio dependiendo del estado del pedido: 
 - Si el pedido esta en `process`, `confirm` o `paid` el estado del envio siempre sera +`pending`
 -  Si el pedido se encuentra en estado `shipping` podemos introducir los estados:
-    - [`'shipped out'`, `'pending delivered'`]
+    - [`shipped out`, `pending delivered`]
 - Si el pedido se encuentra en estado `finished` podemos introducir los estados:
-    - [`'delivered'`, `'undelivered'`]
+    - [`delivered`, `undelivered`]
 ```json
 // request
 {
@@ -775,8 +776,8 @@ __descripción__:actualiza el envio dependiendo del estado del pedido:
 }
 ```
 ```json
-{
 //response 
+{
     "message": "shipping change",
     "newShipping": {
         "_id": "5f91c1c79ab69fcfa1749cb1",
@@ -797,17 +798,14 @@ __descripción__: obtenemos los datos del envio y el pedido
 ```json
 //response 
 {
-    {
-    "message": "View order: {ORDER_ID}",
-    "shipping": {
-        "_id": "",
-        "status": "",
-        "shipping_address": {},
-        "invoices_address": {},
-        "orderId": {},
-
+"message": "View order: {ORDER_ID}",
+"shipping": {
+    "_id": "",
+    "status": "",
+    "shipping_address": {},
+    "invoices_address": {},
+    "orderId": {}
     }
-}
 }
 ```
 
