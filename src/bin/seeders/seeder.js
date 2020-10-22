@@ -10,7 +10,7 @@ program
     await seeder.charge()
     process.exit(0)
   })
-
+  
 program
   .command('drop')
   .description('Drop data on database')

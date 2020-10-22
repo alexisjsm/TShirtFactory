@@ -1,6 +1,7 @@
 import database from '../database'
 import ProductSeeder from './generate/ProductSeeder'
 import UserSeeder from './generate/UserSeeder'
+import UserRolesSeeder from './generate/UsersRolesSeeder'
 
 class SeederInit {
   constructor() {
@@ -11,6 +12,7 @@ class SeederInit {
 
   async charge() {
     await new UserSeeder().createUsers()
+    await new UserRolesSeeder().createUsers()
     await new ProductSeeder().createProducts()
     await database.close(err => {
       throw new Error(err)
