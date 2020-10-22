@@ -4,7 +4,7 @@ const ShippingSchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ['Paid', 'Shipped out', 'Delivered']
+      enum: ['pedding', 'shipped out']
     },
     shipping_address: {
       type: Schema.Types.ObjectId,
@@ -15,26 +15,17 @@ const ShippingSchema = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       ref: 'AddressBook'
     },
-    OrderId: {
+    orderId:{
       type: Schema.Types.ObjectId,
-      ref: 'Order',
-      required: true
+      unique: true,
+      required: true,
+      ref: 'Order'
     }
   },
   {
     timestamps: true
   }
 )
-
-ShippingSchema.pre('save', function (next) {
-  if (this.isModified('invoices_address')) return next()
-  try {
-    this.invoices_address = this.shipping_address
-    return next()
-  } catch (error) {
-    next(error)
-  }
-})
 
 const Shipping = mongoose.model('Shipping', ShippingSchema)
 

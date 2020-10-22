@@ -10,6 +10,7 @@ import routerCart from './route/cart'
 import routerAddressBook from './route/addressbook'
 import routerWallet from './route/wallet'
 import routerOrder from './route/order'
+import routerShipping from './route/shipping'
 
 import passport from 'passport'
 import jwtStrategy from './bin/strategies/jwtStrategy'
@@ -43,6 +44,7 @@ app.use('/cart', routerCart)
 app.use('/addressbook', routerAddressBook)
 app.use('/wallet/', routerWallet)
 app.use('/order/', routerOrder)
+app.use('/shipping/', routerShipping)
 
 /* Handle Error */
 app.use((err, req, res, next) => {
