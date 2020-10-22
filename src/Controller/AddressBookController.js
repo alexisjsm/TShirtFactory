@@ -141,7 +141,7 @@ const AddressBookController = {
   getAddress: async (req, res, next) => {
     const { id: userId } = req.user
     try {
-      await AddressBook.findOne({ userId })
+      await AddressBook.find({ userId })
         .lean()
         .then((addresses) => {
           if (!addresses) throw new ErrorHandle(404, 'Not found address')

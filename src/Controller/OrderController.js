@@ -107,10 +107,13 @@ const OrderController = {
       if(role === 'user') throw new ErrorHandle(401, "You don't have access")
 
       const orders = await Order.find({status: {$eq: 'canceled'}}).then(orders => {
-        if (!orders) throw new ErrorHandle('404', 'Not found orders with canceled status')
+        if (!orders.length) throw new ErrorHandle(404, 'Not found orders with canceled status')
         return orders
       })
-      .catch(err => err)
+      .catch(err => {
+        if (err.statusCode) next(err)
+        throw new ErrorHandle(400, err)
+      })
       const products = orders.flatMap(el => el.products)
 
       const productsRefound = products.map(el => {

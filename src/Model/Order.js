@@ -8,7 +8,7 @@ const OrderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['process', 'confirm', 'paid', 'shipping', 'canceled'],
+      enum: ['process', 'confirm', 'paid', 'shipping', 'finished' ,'canceled'],
       required: true
     },
     products: [

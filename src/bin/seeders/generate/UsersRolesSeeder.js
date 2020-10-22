@@ -6,7 +6,7 @@ class UserRolesSeeder {
     this.admin = [...Array(1)].map((el) => ({
       name: 'Jerry',
       lastname: 'Smith',
-      email: 'jerryshmith@admin.com',
+      email: 'jerrysmith@admin.com',
       password: 'password',
       genre: 'man',
       role: 'admin'
@@ -26,10 +26,12 @@ class UserRolesSeeder {
       console.log('Generate: admin')
       return admin
    })
+   .catch(() => console.log('admin was created before'))
    const seller = await User.create(this.seller).then(seller => {
      console.log('Generate: seller')
      return seller
    })
+   .catch(() => console.log('seller was created before'))
 
    if(admin && seller) console.log('Injected: admin & seller')
 

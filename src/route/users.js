@@ -11,14 +11,14 @@ route.put(
   passport.authenticate('jwt', { session: false }),
   UserController.update
 )
-route.put(
+route.patch(
   '/change/role/:id',
   passport.authenticate('jwt', { session: false }),
   UserController.updateRol
 )
 
 route.delete(
-  '/remove/:id',
+  '/remove/:userId',
   passport.authenticate('jwt', { session: false }),
   UserController.remove
 )

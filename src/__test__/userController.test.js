@@ -90,7 +90,7 @@ describe('UserController', () => {
 
     it('Debe de modificar el rol', async () => {
       const res = await request(server)
-        .put('/users/change/role/5f6df853f4b195c54e00341f')
+        .patch('/users/change/role/5f6df853f4b195c54e00341f')
         .set('Authorization', tokenAdmin)
         .send({
           role: 'seller'
@@ -127,14 +127,6 @@ describe('UserController', () => {
   })
 
   describe('DELETE', () => {
-    it('Debe de lanzar un error al intentar eliminar un usuario sin permiso', async () => {
-      const res = await request(server)
-        .delete('/users/remove/5f6df853f4b195c54e00341f')
-        .set('Authorization', token)
-      expect(res.statusCode).toBe(401)
-      expect(res.body.message).toBe("You don't have access")
-    })
-
     it('Debe de eliminar un usuario siendo administrador', async () => {
       const res = await request(server)
         .delete('/users/remove/5f6df853f4b195c54e00341f')

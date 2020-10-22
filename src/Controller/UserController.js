@@ -77,16 +77,21 @@ const UserController = {
     }
   },
   remove: async (req, res, next) => {
-    const { id } = req.params
+    const { userId } = req.params
     const { role } = req.user
 
     try {
-      if (role === 'user' || role === 'seller')
+      if (role === 'seller')
         throw new ErrorHandle(401, "You don't have access")
-      await User.findByIdAndDelete(id).then((user) => {
+      await User.findByIdAndDelete(userId).then((user) => {
         if (!user) throw new ErrorHandle(404, 'Not found user')
         res.status(200).json({ message: 'Deleted user' })
       })
+      .catch(error => {
+        if (error.statusCode) next(error)
+        throw new ErrorHandle(400, error)
+      })
+      
     } catch (error) {
       next(error)
     }

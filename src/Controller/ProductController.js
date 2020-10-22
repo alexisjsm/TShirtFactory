@@ -214,27 +214,12 @@ const ProductController = {
     const { itemId } = req.body
     try {
       if (role === 'user') throw new ErrorHandle(404, "You don't have access")
-      const product = await Product.findOneAndUpdate(
-        {
-          items: {
-            $in: itemId
-          }
-        },
-        {
-          $pull: {
-            items: itemId
-          }
-        }
-      ).then((product) => {
-        if (!product) throw new ErrorHandle(404, 'Not found product')
-        return product
-      })
-      const item = await Item.findByIdAndRemove(itemId).then((item) => {
-        if (!item) throw new ErrorHandle(404, 'Not found item')
-        return item
-      })
-      if (item && product)
-        res.status(200).json({ message: 'Removed item on product' })
+      const products = await Product.updateMany({items: {$in: itemId}},{$pull:{items: itemId}})
+      console.log(products)
+      const item = await Item.deleteMany({_id: {$in: itemId}})
+      
+      if (item && products)
+        res.status(200).json({ message: 'Removed item on product' , item, products})
     } catch (error) {
       next(error)
     }

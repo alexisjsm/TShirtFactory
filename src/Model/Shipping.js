@@ -4,7 +4,7 @@ const ShippingSchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ['pedding', 'shipped out']
+      enum: ['pending', 'shipped out', 'pending delivered', 'delivered', 'undelivered']
     },
     shipping_address: {
       type: Schema.Types.ObjectId,
